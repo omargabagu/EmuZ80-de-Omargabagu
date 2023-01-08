@@ -1,10 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <stdint.h> //Para tipos como unit8_t
-// Variables globales, perdón profe Francisco Javier :´(
+// Variables globales 
 	uint8_t A, B, C, D, E, H, L, F, I, R;
 	uint16_t SP, PC, IX, IY;
-	
+	bool S, Z, Hf, PV, NCf;
+
+
+
 	uint8_t mem [65536];//del 0 al 65,535 (0-1111111111111111)
 
 //Imprime Data de 8 bits en binario
@@ -309,6 +313,7 @@ unsigned int decodeyexecute(const uint8_t opcode){
 			subopcode=fetch();
 			switch (opcode){
 //--------------------AFECTAN BANDERAS (NO IMPLEMENTADO pag 108-110)------------------------
+
 				case	0x57	: //	LD A, I
 					A=I;					ticks=9;	break;
 				case	0x5F	: //	LD A, R
