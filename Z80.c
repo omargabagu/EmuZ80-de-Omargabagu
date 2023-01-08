@@ -58,6 +58,7 @@ unsigned int decodeyexecute(const uint8_t opcode){
 	unsigned int ticks;
 	uint8_t n;
 	uint8_t subopcode;
+	uint16_t nn;
 	int d;
 	switch (opcode){
 		case 	0x00	: //	NOP
@@ -236,7 +237,17 @@ unsigned int decodeyexecute(const uint8_t opcode){
 					
 				case	0x36	: //	LD (IX+d), n
 					d=fetch();
-					mem[IX+d]=fetch();	ticks=19;	break;	
+					mem[IX+d]=fetch();	ticks=19;	break;
+				//CARGA 16 BITS
+				case 	0x21	: //	LD IX, nn
+					n=fetch();
+					IX=getFrom2Reg(n,fetch());	ticks=14;	break;
+				case	0x2A	: //	LD IX, (nn)
+					n=fetch(); nn=getFrom2Reg(n,fetch());
+					IX = mem[nn]; 				ticks=20;	break;
+//-----------------PENDIENTE (HAY QUE SEPARAR IX (CREAR FUNCION PARA SEPARAR IX Y SP) pag 124 y 125 del pdf----------------
+				case 	0x22	: //	LD (nn), IX
+												ticks=20;	break;
 			}
 //					LD r, (IY+d)
 		case	0xFD	:
@@ -275,6 +286,13 @@ unsigned int decodeyexecute(const uint8_t opcode){
 				case	0x36	: //	LD (IY+d), n
 					d=fetch();
 					mem[IY+d]=fetch();		break;
+				//CARGA DE 16 BITS
+				case 	0x21	: //	LD IY, nn
+					n=fetch();
+					IY=getFrom2Reg(n,fetch());	ticks=14;	break;
+				case	0x2A	: //	LD IY, (nn)
+					n=fetch(); nn=getFrom2Reg(n,fetch());
+					IY = mem[nn]; 				ticks=20;	break;
 			}
 //					LD (HL), r
 		case	0x77	: //	LD (HL), A
@@ -318,10 +336,100 @@ unsigned int decodeyexecute(const uint8_t opcode){
 					A=I;					ticks=9;	break;
 				case	0x5F	: //	LD A, R
 					A=R;					ticks=9;	break;
+					
+					//NO HAY BANDERAS INVOLUCRADAS
 				case	0x47	: //	LD I, A
 					I=A;					ticks=9;	break;
+				case	0x4F	: //	LD R, A
+					R=A;					ticks=9;	break;
+					//CARGA DE 16 BITS LD dd, (nn)
+				case 	0x4B	: //	LD BC, (nn)
+					n=fetch();nn=getFrom2Reg(n,fetch());
+					load2Reg(&B,&C,mem[nn]);	ticks=20;	break;
+				case	0x5B	: //	LD DE, (nn)
+					n=fetch();nn=getFrom2Reg(n,fetch());
+					load2Reg(&D,&E,mem[nn]);	ticks=20;	break;
+				case	0x6B	: //	LD HL, (nn)
+					n=fetch();nn=getFrom2Reg(n,fetch());
+					load2Reg(&H,&L,mem[nn]);	ticks=20;	break;
+				case 	0x7B	: //	LD SP, (nn)
+					n=fetch();nn=getFrom2Reg(n,fetch());
+					SP=mem[nn];					ticks=20;	break;
+//						LD (nn), dd
+				case	0x43	: //	LD (nn), BC
+					n=fetch();
+					mem[n]=B;	mem[fetch()]=C;	ticks=20;	break;
+				case	0x53	: //	LD (nn), DE
+					n=fetch();
+					mem[n]=D;	mem[fetch()]=E;	ticks=20;	break;
+				case	0x63	: //	LD (nn), HL
+					n=fetch();
+					mem[n]=H;	mem[fetch()]=L;	ticks=20;	break;
+				case	0x73	: //	LD (nn), SP
+					n=fetch();
+					SP=getFrom2Reg(n,fetch());	ticks=20;	break;
 			}
-			
+//----------------------------------------------
+//				GRUPO DE CARGA 16 BITS
+//----------------------------------------------
+//					LD dd,nn
+		case	0x01	: //	LD BC, nn
+			n=fetch();
+			load2Reg(&B,&C,getFrom2Reg(n,fetch()));		ticks=9;	break;
+		case	0x11	: //	LD DE, nn
+			n=fetch();
+			load2Reg(&D,&E,getFrom2Reg(n,fetch()));		ticks=9;	break;
+		case	0x21	: //	LD HL, nn
+			n=fetch();
+			load2Reg(&H,&L,getFrom2Reg(n,fetch()));		ticks=9;	break;
+		case	0x31	: //	LD SP, nn
+			n=fetch();
+			SP=getFrom2Reg(n,fetch());					ticks=9;	break;
+		
+		case	0x2A	: //	LD HL, (nn)
+			n=fetch();
+			H=n;	L=fetch();				ticks=16;	break;
+		case	0x22	: //	LD (nn), HL
+			n=fetch();
+			mem[n]=H;	mem[fetch()]=L;		ticks=16;	break;
+		
+		
+		
+
+
+//----------------------------------------------
+//				GRUPO ARITMETICO 8 BITS
+//----------------------------------------------
+
+//----------------------------------------------
+//				GRUPOS DE PROPOSITO GENERAL ARITMETICO Y CONTROL 
+//----------------------------------------------
+
+//----------------------------------------------
+//				GRUPO ARITMETICO 16 BITS
+//----------------------------------------------
+
+//----------------------------------------------
+//				GRUPO DE ROTACIÓN Y DESPLAZAMIENTO 		 
+//----------------------------------------------
+
+//----------------------------------------------
+//				GRUPO BIT SET, RESET Y TEST
+//----------------------------------------------
+
+//----------------------------------------------
+//				GRUPO DE SALTOS
+//----------------------------------------------
+
+//----------------------------------------------
+//				GRUPO DE LLAMADA Y RETORNO 
+//----------------------------------------------
+
+//----------------------------------------------
+//				GRUPO INPUT Y PUTPUT
+//----------------------------------------------
+
+
 	} 
 	return ticks;
 }
