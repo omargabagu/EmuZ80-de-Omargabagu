@@ -3,10 +3,6 @@
 #include <stdbool.h>
 
 #include <stdint.h> //Para tipos como unit8_t
-// BIT(x) regresa el bit x puesto a uno y los demas bits en cero
-#define BIT(x)         (1<<(x))
-// BIT_GET(x,b) regresa el bit b-esimo de x 
-#define BIT_GET(x,b)   ((x) & BIT(b))
 
 // Variables globales 
 	uint8_t A, B, C, D, E, H, L, F, I, R;
@@ -121,16 +117,6 @@ uint8_t fetch(){
 	PC++;
 	return data;
 }
-
-void setRotFlags(uint8_t reg){
-	if(BIT_GET(reg,7))
-		NCf=1;
-	else
-		NCf=0;
-	N=0;
-	Hf=0;
-}
-
 void setAddFlags(uint8_t res){
 	if(res<0){S=1;}else {S=0;}
 	if(res==0){Z=1;}else {Z=0;}
@@ -722,71 +708,7 @@ unsigned int decodeyexecute(const uint8_t opcode){
 //----------------------------------------------
 //				GRUPO DE ROTACIÓN Y DESPLAZAMIENTO 		 
 //----------------------------------------------
-		case	0x07	://RLCA
-						setRotFlags(A);
-						n=A;
-						A=A<<1;
-						n=n>>7;
-						A=A|n;	break;
-		case	0x17	://RLA
-								break;
-		case	0x0F	://RRCA
-						setRotFlags(A);
-						n=A;
-						A=A>>1;
-						n=n<<7;
-						A=A|n;	break;
-		case	0x1F	://RRA
-								break;
-		//Instruccion RLC						
-		case	0xCB	:
-				subopcode=fetch();
-				switch (subopcode){
-					case	0x00	://RLC B
-									setRotFlags(B);
-									n=B;
-									B=B>>1;
-									n=n<<7;
-									B=B|n;	break;
-					case	0x01	://RLC C
-									setRotFlags(C);
-									n=C;
-									C=C>>1;
-									n=n<<7;
-									C=C|n;	break;
-					case	0x02	://RLC D
-									setRotFlags(D);
-									n=D;
-									D=D>>1;
-									n=n<<7;
-									D=D|n;	break;
-					case	0x03	://RLC E
-									setRotFlags(E);
-									n=E;
-									E=E>>1;
-									n=n<<7;
-									E=E|n;	break;
-					case	0x04	://RLC H
-									setRotFlags(H);
-									n=H;
-									H=H>>1;
-									n=n<<7;
-									H=H|n;	break;
-					case	0x05	://RLC L
-									setRotFlags(L);
-									n=L;
-									L=L>>1;
-									n=n<<7;
-									L=L|n;	break;
-					case	0x07	://RLC A
-									setRotFlags(A);
-									n=A;
-									A=A>>1;
-									n=n<<7;
-									A=A|n;	break;
-				}
-		
-						
+
 //----------------------------------------------
 //				GRUPO BIT SET, RESET Y TEST
 //----------------------------------------------
