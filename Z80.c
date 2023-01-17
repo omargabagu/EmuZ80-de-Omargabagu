@@ -7,7 +7,7 @@
 // Variables globales 
 	uint8_t A, B, C, D, E, H, L, F, I, R;
 	uint16_t SP, PC, IX, IY;
-	bool S, Z, Hf,Nh, PV, NCf;
+	bool S, Z, Hf,N, PV, NCf;
 	bool stop=0;
 	int totalIns = 0;
 
@@ -117,10 +117,21 @@ uint8_t fetch(){
 	PC++;
 	return data;
 }
-void setAddFlags(int res){
+void setAddFlags(uint8_t res){
 	if(res<0){S=1;}else {S=0;}
 	if(res==0){Z=1;}else {Z=0;}
-	Hf=0;//PENDIENTES PV, Cf,Hf
+	//Hf PENDIENTE
+	//PV PENDIENTE
+	//C PENDIENTE
+	N=false;
+	
+}
+void setDecFlags(uint8_t res){
+	if(res<0){S=1;}else {S=0;}
+	if(res==0){Z=1;}else {Z=0;}
+	//Hf PENDIENTE
+	//PV PENDIENTE
+	N=true;
 }
 //decodificar y ejecutar, retorna los tick del relog :D 
 unsigned int decodeyexecute(const uint8_t opcode){
@@ -667,29 +678,29 @@ unsigned int decodeyexecute(const uint8_t opcode){
 					H=getFirst(nn); L=nn;
 					ticks=11;	break;
 		case	0x05	://DEC B
-					B--;	setAddFlags(B);
+					B--;	setDecFlags(B);
 					ticks=4;	break;
 		case	0x0D	://DEC C
-					C--;	setAddFlags(C);
+					C--;	setDecFlags(C);
 					ticks=4;	break;
 		case	0x15	://DEC D
-					D--;	setAddFlags(D);
+					D--;	setDecFlags(D);
 					ticks=4;	break;
 		case	0x1D	://DEC E
-					E--;	setAddFlags(E);
+					E--;	setDecFlags(E);
 					ticks=4;	break;
 		case	0x25	://DEC H
-					H--;	setAddFlags(H);
+					H--;	setDecFlags(H);
 					ticks=4;	break;
 		case	0x2D	://DEC L
-					L--;	setAddFlags(L);
+					L--;	setDecFlags(L);
 					ticks=4;	break;
 		case	0x3D	://DEC A
-					A--;	setAddFlags(A);
+					A--;	setDecFlags(A);
 					ticks=4;	break;
 		case	0x35	://DEC HL
 					nn=getFrom2Reg(H,L);
-					nn--;	setAddFlags(nn);
+					nn--;	setDecFlags(nn);
 					H=getFirst(H);L=nn;
 					ticks=11;	break;
 				
@@ -710,54 +721,54 @@ unsigned int decodeyexecute(const uint8_t opcode){
 //----------------------------------------------
 		case	0xC3	://JP nn
 			n=fetch();
-			nn=getFrom2Reg(n,fetch());
+			nn=getFrom2Reg(fetch(),n);
 			PC=nn;
 			ticks=10;		break;
 		case	0xC2	://JP NZ, nn
 			n=fetch();
-			nn=getFrom2Reg(n,fetch());
+			nn=getFrom2Reg(fetch(),n);
 			if(Z==0){
 				PC=nn;
 			}ticks=10;		break;
 		case	0xCA	://JP Z, nn
 			n=fetch();
-			nn=getFrom2Reg(n,fetch());
+			nn=getFrom2Reg(fetch(),n);
 			if(Z==1){
 				PC=nn;
 			}ticks=10;		break;
 		case	0xD2	://JP NC, nn
 			n=fetch();
-			nn=getFrom2Reg(n,fetch());
+			nn=getFrom2Reg(fetch(),n);
 			if(NCf==0){
 				PC=nn;
 			}ticks=10;		break;
 		case	0xDA	://JP C, nn
 			n=fetch();
-			nn=getFrom2Reg(n,fetch());
+			nn=getFrom2Reg(fetch(),n);
 			if(NCf==1){
 				PC=nn;
 			}ticks=10;		break;
 		case	0xE2	://JP PO, nn
 			n=fetch();
-			nn=getFrom2Reg(n,fetch());
+			nn=getFrom2Reg(fetch(),n);
 			if(PV==0){
 				PC=nn;
 			}ticks=10;		break;
 		case	0xEA	://JP PE, nn
 			n=fetch();
-			nn=getFrom2Reg(n,fetch());
+			nn=getFrom2Reg(fetch(),n);
 			if(PV==1){
 				PC=nn;
 			}ticks=10;		break;
 		case	0xF2	://JP P, nn
 			n=fetch();
-			nn=getFrom2Reg(n,fetch());
+			nn=getFrom2Reg(fetch(),n);
 			if(S==0){
 				PC=nn;
 			}ticks=10;		break;
 		case	0xFA	://JP M, nn
 			n=fetch();
-			nn=getFrom2Reg(n,fetch());
+			nn=getFrom2Reg(fetch(),n);
 			if(S==1){
 				PC=nn;
 			}ticks=10;		break;	
@@ -873,14 +884,15 @@ void printMem(uint8_t dir){
 }
 
 void printScreen(int memPage,uint8_t opcode){
+	// Flags S, Z, Hf,N, PV, NCf;
 	printf("---Enter to continue---\n");
-	printf("Registers:				Stack:\n");
-	printf("A:%i	B:%i	C:%i\n",A,B,C);
-	printf("D:%i	E:%i	F:%i\n",D,E,F);
-	printf("H:%i	L:%i	HL:%i		\n",H,L,getFrom2Reg(H,L));
-	printf("I:%i	R:%i	IR:%i		\n",I,R,getFrom2Reg(I,R));
-	printf("SP:%i		IX:%i		\n",SP,IX);
-	printf("PC:%i		IY:%i		Data:%2X\n",PC,IY,opcode);
+	printf("Registers:					Flags:\n");
+	printf("A:%i	B:%i	C:%i				Z:",A,B,C);		printf(Z ? "true\n" : "false\n");
+	printf("D:%i	E:%i	F:%i				S:",D,E,F);		printf(S ? "true\n" : "false\n");
+	printf("H:%i	L:%i	HL:%i				H:",H,L,getFrom2Reg(H,L));printf(Hf ? "true\n" : "false\n");
+	printf("I:%i	R:%i	IR:%i				N:",I,R,getFrom2Reg(I,R));printf(N ? "true\n" : "false\n");
+	printf("SP:%i		IX:%i				P/V:",SP,IX,PV);	printf(PV ? "true\n" : "false\n");
+	printf("PC:%i		IY:%i		Data:%2X		NC:",PC,IY,opcode);		printf(NCf ? "true\n" : "false\n");
 	printf("		---Memory---");
 	printMem(0);
 }
