@@ -7,7 +7,7 @@
 // Variables globales 
 	uint8_t A, B, C, D, E, H, L, F, I, R;
 	uint16_t SP, PC, IX, IY;
-	bool S, Z, Hf, PV, NCf;
+	bool S, Z, Hf,Nh, PV, NCf;
 	bool stop=0;
 	int totalIns = 0;
 
@@ -117,9 +117,9 @@ uint8_t fetch(){
 	PC++;
 	return data;
 }
-void setAddFlags(){
-	if(A<0){S=1;}else {S=0;}
-	if(A==0){Z=1;}else {Z=0;}
+void setAddFlags(int res){
+	if(res<0){S=1;}else {S=0;}
+	if(res==0){Z=1;}else {Z=0;}
 	Hf=0;//PENDIENTES PV, Cf,Hf
 }
 //decodificar y ejecutar, retorna los tick del relog :D 
@@ -293,7 +293,7 @@ unsigned int decodeyexecute(const uint8_t opcode){
 					E=mem[IX+fetch()];	ticks=19;	break;
 				case	0x66	: //	LD H, (IX+d)
 					H=mem[IX+fetch()];	ticks=19;	break;
-				case 	0x7D	: //	LD L, (IX+d)
+				case 	0x6E	: //	LD L, (IX+d)
 					L=mem[IX+fetch()];	ticks=19;	break;
 //					LD (IX+d), r
 				case	0x77	: //	LD (IX+d), A
@@ -336,7 +336,7 @@ unsigned int decodeyexecute(const uint8_t opcode){
 					SP=IX;						ticks=20;	break;
 				case	0x86	: //	ADD A, (IX+d)
 					A=A+mem[IX+fetch()];
-					setAddFlags();				ticks=19;	break;
+					setAddFlags(A);				ticks=19;	break;
 			}
 //		GRUPO IY
 //-------------------------------------------------------
@@ -393,7 +393,7 @@ unsigned int decodeyexecute(const uint8_t opcode){
 //-------------------------SGRUPO ARITMETICO 8 BITS -------------------
 				case	0x86	: //	ADD A, (IY+d)
 					A=A+mem[IY+fetch()];
-					setAddFlags();				ticks=19;	break;
+					setAddFlags(A);				ticks=19;	break;
 				default:
 					printf("Instruction with %2x %2x opcode not suported\n",opcode,subopcode);
 					stop=1;
@@ -528,6 +528,7 @@ unsigned int decodeyexecute(const uint8_t opcode){
 			SP=getFrom2Reg(H,L);				ticks=6;	break;
 //		PUSH qq
 		case	0xC5	: //	PUSH BC
+			
 												ticks=11;	break;
 		case	0xD5	: //	PUSH DE
 												ticks=11;	break;
@@ -548,40 +549,40 @@ unsigned int decodeyexecute(const uint8_t opcode){
 //----------------------------------------------
 		case 	0x80	: //ADD A,B  
 			A=A+B;				
-			setAddFlags();				
+			setAddFlags(A);				
 			ticks=4;	break;	   	
 		case 	0x81	://ADD A,C 
 			A=A+C;				
-			setAddFlags();				
+			setAddFlags(A);				
 			ticks=4;	break;    	
 		case 	0x82	://ADD A,D
 			A=A+D;
-			setAddFlags();				
+			setAddFlags(A);				
 			ticks=4;	break;      	
 		case 	0x83	://ADD A,E
 			A=A+E;
-			setAddFlags();				
+			setAddFlags(A);				
 			ticks=4;	break;    	
 		case 	0x84	://ADD A,H
 			A=A+H;
-			setAddFlags();				
+			setAddFlags(A);				
 			ticks=4;	break;     	
 		case 	0x85	://ADD A,L    
 			A=A+L;
-			setAddFlags();				
+			setAddFlags(A);				
 			ticks=4;	break; 
 		case 	0x86	://ADD A,(HL)
 			A=A+mem[getFrom2Reg(H,L)];
-			setAddFlags();
+			setAddFlags(A);
 			ticks=7;				break;   	
 		case 	0x87	://ADD A,A 
 			A=A+A;
-			setAddFlags();				
+			setAddFlags(A);				
 			ticks=4;	break;  
 		case	0xC6	://ADD A,n
 			n=fetch();
 			A=A+n;
-			setAddFlags();				
+			setAddFlags(A);				
 			ticks=7;	break; 
 			
 		/*case 	0x88	://ADC A,B 
@@ -603,39 +604,39 @@ unsigned int decodeyexecute(const uint8_t opcode){
 							  	
 		case 	0x90	://SUB B   
 			A=A-B;
-			setAddFlags();				
+			setAddFlags(A);				
 			ticks=4;	break;      	
 		case 	0x91	://SUB C   
 			A=A-C;
-			setAddFlags();				
+			setAddFlags(A);				
 			ticks=4;	break;      	
 		case 	0x92	://SUB D   
 			A=A-D;
-			setAddFlags();				
+			setAddFlags(A);				
 			ticks=4;	break;      	
 		case 	0x93	://SUB E   
 			A=A-H;
-			setAddFlags();				
+			setAddFlags(A);				
 			ticks=4;	break;      	
 		case 	0x94	://SUB H     
 			A=A-H;
-			setAddFlags();				
+			setAddFlags(A);				
 			ticks=4;	break;    	
 		case 	0x95	://SUB L   
 			A=A-L;
-			setAddFlags();				
+			setAddFlags(A);				
 			ticks=4;	break;      	
 		case 	0x96	://SUB (HL)
 			A=A-mem[getFrom2Reg(H,L)];
-			setAddFlags();
+			setAddFlags(A);
 			ticks=7;		break;     	
 		case 	0x97	://SUB A   
 			A=A-A;
-			setAddFlags();				
+			setAddFlags(A);				
 			ticks=4;	break;
 		case	0xD6	: //SUB n 
 			A=A-fetch();
-			setAddFlags();
+			setAddFlags(A);
 			ticks=7;		break;      	
 
 //----------------------------------------------
@@ -666,26 +667,31 @@ unsigned int decodeyexecute(const uint8_t opcode){
 					H=getFirst(nn); L=nn;
 					ticks=11;	break;
 		case	0x05	://DEC B
-					B--;	setAddFlags();
+					B--;	setAddFlags(B);
 					ticks=4;	break;
 		case	0x0D	://DEC C
-					C--;	setAddFlags();
+					C--;	setAddFlags(C);
 					ticks=4;	break;
 		case	0x15	://DEC D
-					D--;	setAddFlags();
+					D--;	setAddFlags(D);
 					ticks=4;	break;
 		case	0x1D	://DEC E
-					E--;	setAddFlags();
+					E--;	setAddFlags(E);
 					ticks=4;	break;
 		case	0x25	://DEC H
-					H--;	setAddFlags();
+					H--;	setAddFlags(H);
 					ticks=4;	break;
 		case	0x2D	://DEC L
-					L--;	setAddFlags();
+					L--;	setAddFlags(L);
 					ticks=4;	break;
 		case	0x3D	://DEC A
-					A--;	setAddFlags();
+					A--;	setAddFlags(A);
 					ticks=4;	break;
+		case	0x35	://DEC HL
+					nn=getFrom2Reg(H,L);
+					nn--;	setAddFlags(nn);
+					H=getFirst(H);L=nn;
+					ticks=11;	break;
 				
 //----------------------------------------------
 //				GRUPO DE ROTACIÓN Y DESPLAZAMIENTO 		 
@@ -699,6 +705,105 @@ unsigned int decodeyexecute(const uint8_t opcode){
 //				GRUPO DE SALTOS
 //----------------------------------------------
 
+		//----------------------------------------------
+//				GRUPO DE SALTOS
+//----------------------------------------------
+		case	0xC3	://JP nn
+			n=fetch();
+			nn=getFrom2Reg(n,fetch());
+			PC=nn;
+			ticks=10;		break;
+		case	0xC2	://JP NZ, nn
+			n=fetch();
+			nn=getFrom2Reg(n,fetch());
+			if(Z==0){
+				PC=nn;
+			}ticks=10;		break;
+		case	0xCA	://JP Z, nn
+			n=fetch();
+			nn=getFrom2Reg(n,fetch());
+			if(Z==1){
+				PC=nn;
+			}ticks=10;		break;
+		case	0xD2	://JP NC, nn
+			n=fetch();
+			nn=getFrom2Reg(n,fetch());
+			if(NCf==0){
+				PC=nn;
+			}ticks=10;		break;
+		case	0xDA	://JP C, nn
+			n=fetch();
+			nn=getFrom2Reg(n,fetch());
+			if(NCf==1){
+				PC=nn;
+			}ticks=10;		break;
+		case	0xE2	://JP PO, nn
+			n=fetch();
+			nn=getFrom2Reg(n,fetch());
+			if(PV==0){
+				PC=nn;
+			}ticks=10;		break;
+		case	0xEA	://JP PE, nn
+			n=fetch();
+			nn=getFrom2Reg(n,fetch());
+			if(PV==1){
+				PC=nn;
+			}ticks=10;		break;
+		case	0xF2	://JP P, nn
+			n=fetch();
+			nn=getFrom2Reg(n,fetch());
+			if(S==0){
+				PC=nn;
+			}ticks=10;		break;
+		case	0xFA	://JP M, nn
+			n=fetch();
+			nn=getFrom2Reg(n,fetch());
+			if(S==1){
+				PC=nn;
+			}ticks=10;		break;	
+		case	0x18	://JR e
+			n=fetch();
+			PC=PC+n;
+			ticks=12;		break;
+		case	0x38	://JR C, e
+			n=fetch();
+			if(NCf==1){
+				PC=PC+n;
+				ticks=12;
+			}else
+				ticks=7;	break;
+		case	0x30	://JR NC, e
+			n=fetch();
+			if(NCf==1){
+				PC=PC+n;
+				ticks=12;
+			}else
+				ticks=7;	break;
+		case	0x28	://JR Z, e
+			n=fetch();
+			if(Z==1){
+				PC=PC+n;
+				ticks=12;
+			}else
+				ticks=7;	break;
+		case	0x20	://JR NZ, e
+			n=fetch();
+			if(Z==0){
+				PC=PC+n;
+				ticks=12;
+			}else
+				ticks=7;	break;
+		case	0xE9	://JP (HL)
+			PC=mem[getFrom2Reg(H,L)];
+			ticks=4;		break;
+		case	0x10	://DJNZ, e
+			B=B-1;
+			n=fetch();
+			if(Z==0){
+				PC=PC+n;
+				ticks=13;
+			}else
+				ticks=8;	break;
 //----------------------------------------------
 //				GRUPO DE LLAMADA Y RETORNO 
 //----------------------------------------------
