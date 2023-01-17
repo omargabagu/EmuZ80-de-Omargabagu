@@ -423,7 +423,7 @@ unsigned int decodeyexecute(const uint8_t opcode){
 			A=mem[getFrom2Reg(D,E)];		ticks=7;	break;
 		case	0x3A	://		LD A, (nn)
 			n=fetch();
-			A=mem[getFrom2Reg(n,fetch())];	ticks=13;	break;
+			A=mem[getFrom2Reg(fetch(),n)];	ticks=13;	break;
 		case	0x02	://		LD (BC), A
 			mem[getFrom2Reg(B,C)]=A;			ticks=7;	break;
 		case	0x12	://		LD (DE), A
@@ -645,7 +645,48 @@ unsigned int decodeyexecute(const uint8_t opcode){
 //----------------------------------------------
 //				GRUPO ARITMETICO 16 BITS
 //----------------------------------------------
-
+		case	0x09	://ADD HL,BC
+					nn=getFrom2Reg(H,L); //nn es una variable temporal para guardar valores de 16 bits, en este caso HL
+		            nn+=getFrom2Reg(B,C);      
+					H=getFirst(nn); L=nn;
+					ticks=11;	break;
+		case	0x19	://ADD HL,DE
+					nn=getFrom2Reg(H,L); //nn es una variable temporal para guardar valores de 16 bits, en este caso HL
+		            nn+=getFrom2Reg(D,E);      
+					H=getFirst(nn); L=nn;
+					ticks=11;	break;
+		case	0x29	://ADD HL,HL
+					nn=getFrom2Reg(H,L); //nn es una variable temporal para guardar valores de 16 bits, en este caso HL
+		            nn+=getFrom2Reg(H,L);      
+					H=getFirst(nn); L=nn;
+					ticks=11;	break;
+		case	0x39	://ADD HL,SP
+					nn=getFrom2Reg(H,L); //nn es una variable temporal para guardar valores de 16 bits, en este caso HL
+		            nn+=SP;      
+					H=getFirst(nn); L=nn;
+					ticks=11;	break;
+		case	0x05	://DEC B
+					B--;	setAddFlags();
+					ticks=4;	break;
+		case	0x0D	://DEC C
+					C--;	setAddFlags();
+					ticks=4;	break;
+		case	0x15	://DEC D
+					D--;	setAddFlags();
+					ticks=4;	break;
+		case	0x1D	://DEC E
+					E--;	setAddFlags();
+					ticks=4;	break;
+		case	0x25	://DEC H
+					H--;	setAddFlags();
+					ticks=4;	break;
+		case	0x2D	://DEC L
+					L--;	setAddFlags();
+					ticks=4;	break;
+		case	0x3D	://DEC A
+					A--;	setAddFlags();
+					ticks=4;	break;
+				
 //----------------------------------------------
 //				GRUPO DE ROTACIÓN Y DESPLAZAMIENTO 		 
 //----------------------------------------------
@@ -706,16 +747,20 @@ void printMem(uint8_t dir){
     printf("\n\t");
     for (int i = 0; i < 16; i++)
     {
-        printf("%02X ", i);
+        printf(" %02X", i);
     }
     printf("\n\n");
     
     for (int i = line; i < line+16; i++)
     {
-        printf("%04X\t", i);
-        for (int j = 0; j < 16; j++)
-        {
-            printf("%02X ", mem[(i*16)+j]);
+        printf("%04X\t", i*16);
+        for (int j = 0; j < 16; j++){
+        	if (PC==(i*16)+j){
+        		printf(">%02X", mem[(i*16)+j]);
+			}else{
+				printf(" %02X", mem[(i*16)+j]);
+			}
+            
         }
         printf("\n");
     }
@@ -730,8 +775,7 @@ void printScreen(int memPage,uint8_t opcode){
 	printf("H:%i	L:%i	HL:%i		\n",H,L,getFrom2Reg(H,L));
 	printf("I:%i	R:%i	IR:%i		\n",I,R,getFrom2Reg(I,R));
 	printf("SP:%i		IX:%i		\n",SP,IX);
-	printf("PC:%i		IY:%i		\n",PC,IY);
-	printf("Data: %2X	\n",opcode);
+	printf("PC:%i		IY:%i		Data:%2X\n",PC,IY,opcode);
 	printf("		---Memory---");
 	printMem(0);
 }
@@ -749,7 +793,8 @@ int main(){
 	printf("L:");printBB(L);
 	printf("HL: %i\n",getFrom2Reg(H,L));
 	//Porbando asignación con load2Reg()
-	load2Reg(&H,&L,data);
+	
+	/*load2Reg(&H,&L,data);
 	printf("H:");printBB(H);
 	printf("L:");printBB(L);
 	printf("HL: %i\n",getFrom2Reg(H,L));
@@ -759,6 +804,7 @@ int main(){
 	printf("HP first (H): ");printBB(getFirst(getFrom2Reg(H,L)));
 	*/
 	//RUN (ciclo de ejecución)
+	
 	loadProgram(0, "CONC.HEX");
 	printScreen(0,0);
 	for (;stop==0;){
@@ -769,6 +815,6 @@ int main(){
 		printScreen(0,opcode);
 		
 	}
-	printf("Fin del programa");
+	//printf("Fin del programa");
 	return 0;
 }
