@@ -139,6 +139,7 @@ unsigned int decodeyexecute(const uint8_t opcode){
 	uint8_t n;
 	uint8_t subopcode;
 	uint16_t nn;
+	int e;
 	int d;
 	switch (opcode){
 		case 	0x00	: //	NOP
@@ -716,9 +717,6 @@ unsigned int decodeyexecute(const uint8_t opcode){
 //				GRUPO DE SALTOS
 //----------------------------------------------
 
-		//----------------------------------------------
-//				GRUPO DE SALTOS
-//----------------------------------------------
 		case	0xC3	://JP nn
 			n=fetch();
 			nn=getFrom2Reg(fetch(),n);
@@ -773,34 +771,34 @@ unsigned int decodeyexecute(const uint8_t opcode){
 				PC=nn;
 			}ticks=10;		break;	
 		case	0x18	://JR e
-			n=fetch();
-			PC=PC+n;
+			e=fetch();
+			PC=PC+e;
 			ticks=12;		break;
 		case	0x38	://JR C, e
-			n=fetch();
+			e=fetch();
 			if(NCf==1){
-				PC=PC+n;
+				PC=PC+e;
 				ticks=12;
 			}else
 				ticks=7;	break;
 		case	0x30	://JR NC, e
-			n=fetch();
+			e=fetch();
 			if(NCf==1){
-				PC=PC+n;
+				PC=PC+e;
 				ticks=12;
 			}else
 				ticks=7;	break;
 		case	0x28	://JR Z, e
-			n=fetch();
+			e=fetch();
 			if(Z==1){
-				PC=PC+n;
+				PC=PC+e;
 				ticks=12;
 			}else
 				ticks=7;	break;
 		case	0x20	://JR NZ, e
-			n=fetch();
+			e=fetch();
 			if(Z==0){
-				PC=PC+n;
+				PC=PC+e;
 				ticks=12;
 			}else
 				ticks=7;	break;
@@ -809,9 +807,9 @@ unsigned int decodeyexecute(const uint8_t opcode){
 			ticks=4;		break;
 		case	0x10	://DJNZ, e
 			B=B-1;
-			n=fetch();
+			e=fetch();
 			if(Z==0){
-				PC=PC+n;
+				PC=PC+e;
 				ticks=13;
 			}else
 				ticks=8;	break;
