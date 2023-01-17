@@ -1,15 +1,76 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+
 #include <stdint.h> //Para tipos como unit8_t
+
 // Variables globales 
 	uint8_t A, B, C, D, E, H, L, F, I, R;
 	uint16_t SP, PC, IX, IY;
 	bool S, Z, Hf, PV, NCf;
+	bool stop=0;
+	int totalIns = 0;
 
 
 
 	uint8_t mem [65536];//del 0 al 65,535 (0-1111111111111111)
+	
+int loadProgram(uint8_t dirInicio, char *fileName){
+    char line[44];
+    char ins[20];    
+    char ignore[7];
+    int totalIns = 0;
+    int numInstructions;
+    int currentDir = dirInicio;
+
+    FILE *PROGRAM = fopen(fileName, "r");
+    if (PROGRAM == NULL)
+    {
+        printf("FILE NOT FOUND!!!\n");
+        return -1;
+    }
+
+    while (!feof(PROGRAM))
+    {
+        fgetc(PROGRAM);
+        fscanf(PROGRAM, "%2x%6c", &numInstructions, ignore);
+        totalIns += numInstructions;
+        while (numInstructions != 0)
+        {
+            fscanf(PROGRAM, "%2x", &mem[currentDir]);
+            ++ currentDir;
+            -- numInstructions;
+        }
+        fscanf(PROGRAM, "%s", ignore);
+        fgetc(PROGRAM);
+        fgetc(PROGRAM);
+    }
+    
+    fclose(PROGRAM);
+}
+
+void push (int8_t data)
+{
+    if (SP <= 0)
+    {
+        //fprintf(stderr, "Limite de memoria alcanzado\n");
+        return ;
+    }
+    SP --;
+    mem[SP] = data;
+}
+
+int8_t pop ()
+{
+    if (SP >= 65535)
+    {
+        //fprintf(stderr, "Limite de memoria alcanzado\n");
+    }
+    
+    int8_t data = mem[SP];
+    SP ++;
+    return data;
+}
 
 //Imprime Data de 8 bits en binario
 void printBB(uint8_t data){
@@ -72,7 +133,8 @@ unsigned int decodeyexecute(const uint8_t opcode){
 		case 	0x00	: //	NOP
 						ticks=4;	break;
 		case 	0x76	: //	HALT
-									break;
+			stop=1;				
+				break;
 //----------------------------------------------
 //				GRUPO DE CARGA 8 BITS
 //----------------------------------------------
@@ -252,6 +314,9 @@ unsigned int decodeyexecute(const uint8_t opcode){
 				case	0x36	: //	LD (IX+d), n
 					d=fetch();
 					mem[IX+d]=fetch();	ticks=19;	break;
+					default:
+					printf("Instruction with %2x %2x opcode not suported\n",opcode,subopcode);
+					stop=1;
 //--------------------------CARGA 16 BITS IX--------------
 				case 	0x21	: //	LD IX, nn
 					n=fetch();
@@ -329,6 +394,9 @@ unsigned int decodeyexecute(const uint8_t opcode){
 				case	0x86	: //	ADD A, (IY+d)
 					A=A+mem[IY+fetch()];
 					setAddFlags();				ticks=19;	break;
+				default:
+					printf("Instruction with %2x %2x opcode not suported\n",opcode,subopcode);
+					stop=1;
 			}
 //		LD (HL), r
 		case	0x77	: //	LD (HL), A
@@ -426,6 +494,9 @@ unsigned int decodeyexecute(const uint8_t opcode){
 					mem[getFrom2Reg(n,fetch())]=SP;	n=fetch();	
 					mem[getFrom2Reg(n,fetch())]=getFirst(SP);	
 														ticks=16;	break;
+				default:
+					printf("Instruction with %2x %2x opcode not suported\n",opcode,subopcode);
+					stop=1;
 
 			}
 //----------------------------------------------
@@ -594,7 +665,9 @@ unsigned int decodeyexecute(const uint8_t opcode){
 //----------------------------------------------
 //				GRUPO INPUT Y PUTPUT
 //----------------------------------------------
-
+		default:
+			printf("Instruction with %2x opcode not suported\n",opcode);
+			stop=1;	
 
 	} 
 	return ticks;
@@ -611,6 +684,7 @@ int ascii_to_hex(char c){
 	return num;
 }
 #define FILELEN 15
+/*
 void readFile(){
         FILE *fp = fopen("sample","r");
         unsigned char c1,c2;
@@ -625,8 +699,30 @@ void readFile(){
                 printf("%02x ",sum);
         }
         printf("\n");
+}*/
+void printMem(uint8_t dir){
+    uint8_t line = dir / 16;
+
+    printf("\n\t");
+    for (int i = 0; i < 16; i++)
+    {
+        printf("%02X ", i);
+    }
+    printf("\n\n");
+    
+    for (int i = line; i < line+16; i++)
+    {
+        printf("%04X\t", i);
+        for (int j = 0; j < 16; j++)
+        {
+            printf("%02X ", mem[(i*16)+j]);
+        }
+        printf("\n");
+    }
+    
 }
-void printScreen(int memPage){
+
+void printScreen(int memPage,uint8_t opcode){
 	printf("---Enter to continue---\n");
 	printf("Registers:				Stack:\n");
 	printf("A:%i	B:%i	C:%i\n",A,B,C);
@@ -635,8 +731,9 @@ void printScreen(int memPage){
 	printf("I:%i	R:%i	IR:%i		\n",I,R,getFrom2Reg(I,R));
 	printf("SP:%i		IX:%i		\n",SP,IX);
 	printf("PC:%i		IY:%i		\n",PC,IY);
-	//A, B, C, D, E, H, L, F, I, R
-	//SP, PC, IX, IY
+	printf("Data: %2X	\n",opcode);
+	printf("		---Memory---");
+	printMem(0);
 }
 	
 int main(){
@@ -662,13 +759,16 @@ int main(){
 	printf("HP first (H): ");printBB(getFirst(getFrom2Reg(H,L)));
 	*/
 	//RUN (ciclo de ejecución)
-	
-	for (;;){
-		printScreen(0);
+	loadProgram(0, "CONC.HEX");
+	printScreen(0,0);
+	for (;stop==0;){
 		getchar(); 
-		uint8_t upcode = fetch();
-		decodeyexecute(upcode);
 		system("cls");
+		uint8_t opcode = fetch();
+		decodeyexecute(opcode);
+		printScreen(0,opcode);
+		
 	}
+	printf("Fin del programa");
 	return 0;
 }
