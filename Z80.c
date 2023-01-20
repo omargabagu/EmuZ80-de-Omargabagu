@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-
+#include <string.h>
 #include <stdint.h> //Para tipos como unit8_t
 
 // Variables globales 
@@ -10,6 +10,7 @@
 	bool S, Z, Hf,N, PV, NCf;
 	bool stop=0;
 	int totalIns = 0;
+	char inst[15]="";
 
 
 
@@ -42,7 +43,7 @@ int loadProgram(uint8_t dirInicio, char *fileName){
             -- numInstructions;
         }
         fscanf(PROGRAM, "%s", ignore);
-        fgetc(PROGRAM);
+        //fgetc(PROGRAM);
         fgetc(PROGRAM);
     }
     
@@ -126,6 +127,15 @@ void setAddFlags(uint8_t res){
 	N=false;
 	
 }
+void setIncFlags(uint8_t res){
+	if(res<0){S=1;}else {S=0;}
+	if(res==0){Z=1;}else {Z=0;}
+	//Hf PENDIENTE
+	//PV PENDIENTE
+	N=false;
+	//C NO SE AFECTA
+	
+}
 void setDecFlags(uint8_t res){
 	if(res<0){S=1;}else {S=0;}
 	if(res==0){Z=1;}else {Z=0;}
@@ -143,149 +153,149 @@ unsigned int decodeyexecute(const uint8_t opcode){
 	int d;
 	switch (opcode){
 		case 	0x00	: //	NOP
-						ticks=4;	break;
+						ticks=4;	strcpy(inst, "NOP");	break;
 		case 	0x76	: //	HALT
-			stop=1;				
+			stop=1;	strcpy(inst, "NOP");			
 				break;
 //----------------------------------------------
 //				GRUPO DE CARGA 8 BITS
 //----------------------------------------------
 //		LD r, r´
 		case	0x7F	: //	LD A, A
-			A=A;		ticks=4;	break;
+			A=A;		ticks=4;	strcpy(inst, "LD A, A");	break;
 		case	0x78	: //	LD A, B		
-			A=B;		ticks=4;	break;
+			A=B;		ticks=4;	strcpy(inst, "LD A, B");	break;
 		case	0x79	: //	LD A, C		
-			A=C;		ticks=4;	break;
+			A=C;		ticks=4;	strcpy(inst, "LD A, C");	break;
 		case	0x7A	: //	LD A, D		
-			A=D;		ticks=4;	break;
+			A=D;		ticks=4;	strcpy(inst, "LD A, D");	break;
 		case	0x7B	: //	LD A, E		
-			A=E;		ticks=4;	break;
+			A=E;		ticks=4;	strcpy(inst, "LD A, E");	break;
 		case	0x7C	: //	LD A, H		
-			A=H;		ticks=4;	break;
+			A=H;		ticks=4;	strcpy(inst, "LD A, H");	break;
 		case	0x7D	: //	LD A, L		
-			A=L;		ticks=4;	break;
+			A=L;		ticks=4;	strcpy(inst, "LD A, L");	break;
 		case	0x47	: //	LD B, A		
-			B=A;		ticks=4;	break;
+			B=A;		ticks=4;	strcpy(inst, "LD B, A");	break;
 		case	0x40	: //	LD B, B		
-			B=B;		ticks=4;	break;
+			B=B;		ticks=4;	strcpy(inst, "LD B, B");	break;
 		case	0x41	: //	LD B, C		
-			B=C;		ticks=4;	break;
+			B=C;		ticks=4;	strcpy(inst, "LD B, C");	break;
 		case	0x42	: //	LD B, D		
-			B=D;		ticks=4;	break;
+			B=D;		ticks=4;	strcpy(inst, "LD B, D");	break;
 		case	0x43	: //	LD B, E		
-			B=E;		ticks=4;	break;
+			B=E;		ticks=4;	strcpy(inst, "LD B, E");	break;
 		case	0x44	: //	LD B, H		
-			B=H;		ticks=4;	break;
+			B=H;		ticks=4;	strcpy(inst, "LD B, H");	break;
 		case	0x45	: //	LD B, L		
-			B=L;		ticks=4;	break;
+			B=L;		ticks=4;	strcpy(inst, "LD B, L");	break;
 		case	0x4F	: //	LD C, A		
-			C=A;		ticks=4;	break;
+			C=A;		ticks=4;	strcpy(inst, "LD C, A");	break;
 		case	0x48	: //	LD C, B		
-			C=B;		ticks=4;	break;
+			C=B;		ticks=4;	strcpy(inst, "LD C, B");	break;
 		case	0x49	: //	LD C, C		
-			C=C;		ticks=4;	break;
+			C=C;		ticks=4;	strcpy(inst, "LD C, C");	break;
 		case	0x4A	: //	LD C, D		
-			C=D;		ticks=4;	break;
+			C=D;		ticks=4;	strcpy(inst, "LD C, D");	break;
 		case	0x4B	: //	LD C, E		
-			C=E;		ticks=4;	break;
+			C=E;		ticks=4;	strcpy(inst, "LD C, E");	break;
 		case	0x4C	: //	LD C, H		
-			C=H;		ticks=4;	break;
+			C=H;		ticks=4;	strcpy(inst, "LD C, H");	break;
 		case	0x4D	: //	LD C, L		
-			C=L;		ticks=4;	break;
+			C=L;		ticks=4;	strcpy(inst, "LD C, L");	break;
 		case	0x57	: //	LD D, A		
-			D=A;		ticks=4;	break;
+			D=A;		ticks=4;	strcpy(inst, "LD D, A");	break;
 		case	0x50	: //	LD D, B		
-			D=B;		ticks=4;	break;
+			D=B;		ticks=4;	strcpy(inst, "LD D, B");	break;
 		case	0x51	: //	LD D, C		
-			D=C;		ticks=4;	break;
+			D=C;		ticks=4;	strcpy(inst, "LD D, C");	break;
 		case	0x52	: //	LD D, D		
-			D=D;		ticks=4;	break;
+			D=D;		ticks=4;	strcpy(inst, "LD D, D");	break;
 		case	0x53	: //	LD D, E		
-			D=E;		ticks=4;	break;
+			D=E;		ticks=4;	strcpy(inst, "LD D, E");	break;
 		case	0x54	: //	LD D, H		
-			D=H;		ticks=4;	break;
+			D=H;		ticks=4;	strcpy(inst, "LD D, H");	break;
 		case	0x55	: //	LD D, L		
-			D=L;		ticks=4;	break;
+			D=L;		ticks=4;	strcpy(inst, "");	break;
 		case	0x5F	: //	LD E, A		
-			E=A;		ticks=4;	break;
+			E=A;		ticks=4;	strcpy(inst, "");	break;
 		case	0x58	: //	LD E, B		
-			E=B;		ticks=4;	break;
+			E=B;		ticks=4;	strcpy(inst, "");	break;
 		case	0x59	: //	LD E, C		
-			E=C;		ticks=4;	break;
+			E=C;		ticks=4;	strcpy(inst, "");	break;
 		case	0x5A	: //	LD E, D		
-			E=D;		ticks=4;	break;
+			E=D;		ticks=4;	strcpy(inst, "");	break;
 		case	0x5B	: //	LD E, E		
-			E=E;		ticks=4;	break;
+			E=E;		ticks=4;	strcpy(inst, "");	break;
 		case	0x5C	: //	LD E, H		
-			E=H;		ticks=4;	break;
+			E=H;		ticks=4;	strcpy(inst, "");	break;
 		case	0x5D	: //	LD E, L		
-			E=L;		ticks=4;	break;
+			E=L;		ticks=4;	strcpy(inst, "");	break;
 		case	0x67	: //	LD H, A		
-			H=A;		ticks=4;	break;
+			H=A;		ticks=4;	strcpy(inst, "");	break;
 		case	0x60	: //	LD H, B		
-			H=B;		ticks=4;	break;
+			H=B;		ticks=4;	strcpy(inst, "");	break;
 		case	0x61	: //	LD H, C		
-			H=C;		ticks=4;	break;
+			H=C;		ticks=4;	strcpy(inst, "");	break;
 		case	0x62	: //	LD H, D		
-			H=D;		ticks=4;	break;
+			H=D;		ticks=4;	strcpy(inst, "");	break;
 		case	0x63	: //	LD H, E		
-			H=E;		ticks=4;	break;
+			H=E;		ticks=4;	strcpy(inst, "");	break;
 		case	0x64	: //	LD H, H		
-			H=H;		ticks=4;	break;
+			H=H;		ticks=4;	strcpy(inst, "");	break;
 		case	0x65	: //	LD H, L		
-			H=L;		ticks=4;	break;
+			H=L;		ticks=4;	strcpy(inst, "");	break;
 		case	0x6F	: //	LD L, A		
-			L=A;		ticks=4;	break;
+			L=A;		ticks=4;	strcpy(inst, "");	break;
 		case	0x68	: //	LD L, B		
-			L=B;		ticks=4;	break;
+			L=B;		ticks=4;	strcpy(inst, "");	break;
 		case	0x69	: //	LD L, C		
-			L=C;		ticks=4;	break;
+			L=C;		ticks=4;	strcpy(inst, "");	break;
 		case	0x6A	: //	LD L, D		
-			L=D;		ticks=4;	break;
+			L=D;		ticks=4;	strcpy(inst, "");	break;
 		case	0x6B	: //	LD L, E		
-			L=E;		ticks=4;	break;
+			L=E;		ticks=4;	strcpy(inst, "");	break;
 		case	0x6C	: //	LD L, H		
-			L=H;		ticks=4;	break;
+			L=H;		ticks=4;	strcpy(inst, "");	break;
 		case	0x6D	: //	LD L, L		
-			L=L;		ticks=4;	break;
+			L=L;		ticks=4;	strcpy(inst, "");	break;
 //		LD r, n 
 		case	0x3E	: //	LD A, n		
 			n = fetch();
-			A=n;		ticks=7;	break;
+			A=n;		ticks=7;	strcpy(inst, "");	break;
 		case	0x06	: //	LD B, n			
 			n = fetch();
-			B=n;		ticks=7;	break;
+			B=n;		ticks=7;	strcpy(inst, "");	break;
 		case	0x0E	: //	LD C, n			
 			n = fetch();
-			C=n;		ticks=7;	break;
+			C=n;		ticks=7;	strcpy(inst, "");	break;
 		case	0x16	: //	LD D, n			
 			n = fetch();
-			D=n;		ticks=7;	break;
+			D=n;		ticks=7;	strcpy(inst, "");	break;
 		case	0x1E	: //	LD E, n			
 			n = fetch();
-			E=n;		ticks=7;	break;
+			E=n;		ticks=7;	strcpy(inst, "");	break;
 		case	0x26	: //	LD H, n			
 			n = fetch();
-			H=n;		ticks=7;	break;
+			H=n;		ticks=7;	strcpy(inst, "");	break;
 		case	0x2E	: //	LD L, n			
 			n = fetch();
-			L=n;		ticks=7;	break;
+			L=n;		ticks=7;	strcpy(inst, "");	break;
 //		LD r,(HL) 
 		case	0x7E	: //	LD A, (HL)	
-			A=mem[getFrom2Reg(H,L)];	ticks=7;	break;
+			A=mem[getFrom2Reg(H,L)];	ticks=7;	strcpy(inst, "");	break;
 		case	0x46	: //	LD B, (HL)		
-			B=mem[getFrom2Reg(H,L)];	ticks=7;	break;
+			B=mem[getFrom2Reg(H,L)];	ticks=7;	strcpy(inst, "");	break;
 		case	0x4E	: //	LD C, (HL)		
-			C=mem[getFrom2Reg(H,L)];	ticks=7;	break;
+			C=mem[getFrom2Reg(H,L)];	ticks=7;	strcpy(inst, "");	break;
 		case	0x56	: //	LD D, (HL)		
-			D=mem[getFrom2Reg(H,L)];	ticks=7;	break;
+			D=mem[getFrom2Reg(H,L)];	ticks=7;	strcpy(inst, "");	break;
 		case	0x5E	: //	LD E, (HL)		
-			E=mem[getFrom2Reg(H,L)];	ticks=7;	break;
+			E=mem[getFrom2Reg(H,L)];	ticks=7;	strcpy(inst, "");	break;
 		case	0x66	: //	LD H, (HL)		
-			H=mem[getFrom2Reg(H,L)];	ticks=7;	break;
+			H=mem[getFrom2Reg(H,L)];	ticks=7;	strcpy(inst, "");	break;
 		case	0x6E	: //	LD L, (HL)		
-			L=mem[getFrom2Reg(H,L)];	ticks=7;	break;
+			L=mem[getFrom2Reg(H,L)];	ticks=7;	strcpy(inst, "");	break;
 //		GRUPO IX 
 //-------------------------------------------------------
 		case	0xDD	:
@@ -294,61 +304,61 @@ unsigned int decodeyexecute(const uint8_t opcode){
 //--------------------------CARGA 8 BITS IX -------------
 			//  LD r,(IX+d) 				
 				case 	0x7E	: //	LD A, (IX+d)
-					A=mem[IX+fetch()];	ticks=19;	break;
+					A=mem[IX+fetch()];	ticks=19;	strcpy(inst, "");	break;
 				case 	0x46	: //	LD B, (IX+d)
-					B=mem[IX+fetch()];	ticks=19;	break;
+					B=mem[IX+fetch()];	ticks=19;	strcpy(inst, "");	break;
 				case 	0x4E	: //	LD C, (IX+d)
-					C=mem[IX+fetch()];	ticks=19;	break;
+					C=mem[IX+fetch()];	ticks=19;	strcpy(inst, "");	break;
 				case 	0x56	: //	LD D, (IX+d)
-					D=mem[IX+fetch()];	ticks=19;	break;
+					D=mem[IX+fetch()];	ticks=19;	strcpy(inst, "");	break;
 				case 	0x5E	: //	LD E, (IX+d)
-					E=mem[IX+fetch()];	ticks=19;	break;
+					E=mem[IX+fetch()];	ticks=19;	strcpy(inst, "");	break;
 				case	0x66	: //	LD H, (IX+d)
-					H=mem[IX+fetch()];	ticks=19;	break;
+					H=mem[IX+fetch()];	ticks=19;	strcpy(inst, "");	break;
 				case 	0x6E	: //	LD L, (IX+d)
-					L=mem[IX+fetch()];	ticks=19;	break;
+					L=mem[IX+fetch()];	ticks=19;	strcpy(inst, "");	break;
 //					LD (IX+d), r
 				case	0x77	: //	LD (IX+d), A
-					mem[IX+fetch()]=A;	ticks=19;	break;
+					mem[IX+fetch()]=A;	ticks=19;	strcpy(inst, "");	break;
 				case	0x70	: //	LD (IX+d), B
-					mem[IX+fetch()]=B;	ticks=19;	break;
+					mem[IX+fetch()]=B;	ticks=19;	strcpy(inst, "");	break;
 				case	0x71	: //	LD (IX+d), C
-					mem[IX+fetch()]=C;	ticks=19;	break;
+					mem[IX+fetch()]=C;	ticks=19;	strcpy(inst, "");	break;
 				case	0x72	: //	LD (IX+d), D
-					mem[IX+fetch()]=D;	ticks=19;	break;
+					mem[IX+fetch()]=D;	ticks=19;	strcpy(inst, "");	break;
 				case	0x73	: //	LD (IX+d), E
-					mem[IX+fetch()]=E;	ticks=19;	break;
+					mem[IX+fetch()]=E;	ticks=19;	strcpy(inst, "");	break;
 				case	0x74	: //	LD (IX+d), H
-					mem[IX+fetch()]=H;	ticks=19;	break;	
+					mem[IX+fetch()]=H;	ticks=19;	strcpy(inst, "");	break;	
 				case	0x75	: //	LD (IX+d), L
-					mem[IX+fetch()]=L;	ticks=19;	break;
+					mem[IX+fetch()]=L;	ticks=19;	strcpy(inst, "");	break;
 					
 				case	0x36	: //	LD (IX+d), n
 					d=fetch();
-					mem[IX+d]=fetch();	ticks=19;	break;
+					mem[IX+d]=fetch();	ticks=19;	strcpy(inst, "");	break;
 					default:
 					printf("Instruction with %2x %2x opcode not suported\n",opcode,subopcode);
 					stop=1;
 //--------------------------CARGA 16 BITS IX--------------
 				case 	0x21	: //	LD IX, nn
 					n=fetch();
-					IX=getFrom2Reg(n,fetch());	ticks=14;	break;
+					IX=getFrom2Reg(n,fetch());	ticks=14;	strcpy(inst, "");	break;
 				case	0x2A	: //	LD IX, (nn)
 					n=fetch();
 					nn=getFrom2Reg(n,fetch()); 
 					n=fetch();
 					IX=getFrom2Reg	(mem[getFrom2Reg(n,fetch())],	mem[nn]);	
-												ticks=20;	break;
+												ticks=20;	strcpy(inst, "");	break;
 				case 	0x22	: //	LD (nn), IX
 					n=fetch();
 					mem[getFrom2Reg(n,fetch())]=IX;	n=fetch();	
 					mem[getFrom2Reg(n,fetch())]=getFirst(IX);		
-												ticks=16;	break;
+												ticks=16;	strcpy(inst, "");	break;
 				case	0xF9	: //	LD SP, IX
-					SP=IX;						ticks=20;	break;
+					SP=IX;						ticks=20;	strcpy(inst, "");	break;
 				case	0x86	: //	ADD A, (IX+d)
 					A=A+mem[IX+fetch()];
-					setAddFlags(A);				ticks=19;	break;
+					setAddFlags(A);				ticks=19;	strcpy(inst, "");	break;
 			}
 //		GRUPO IY
 //-------------------------------------------------------
@@ -358,91 +368,91 @@ unsigned int decodeyexecute(const uint8_t opcode){
 //--------------------------CARGA 8 BITS IY -------------
 //				LD r, (IY+d)
 				case 	0x7E	: //	LD A, (IY+d)
-					A=mem[IY+fetch()];		break;
+					A=mem[IY+fetch()];		strcpy(inst, "");	break;
 				case 	0x46	: //	LD B, (IY+d)
-					B=mem[IY+fetch()];		break;
+					B=mem[IY+fetch()];		strcpy(inst, "");	break;
 				case 	0x4E	: //	LD C, (IY+d)
-					C=mem[IY+fetch()];		break;
+					C=mem[IY+fetch()];		strcpy(inst, "");	break;
 				case 	0x56	: //	LD D, (IY+d)
-					D=mem[IY+fetch()];		break;
+					D=mem[IY+fetch()];		strcpy(inst, "");	break;
 				case 	0x5E	: //	LD E, (IY+d)
-					E=mem[IY+fetch()];		break;
+					E=mem[IY+fetch()];		strcpy(inst, "");	break;
 				case	0x66	: //	LD H, (IY+d)
-					H=mem[IY+fetch()];		break;
+					H=mem[IY+fetch()];		strcpy(inst, "");	break;
 				case 	0x7D	: //	LD L, (IY+d)
-					L=mem[IY+fetch()];		break;
+					L=mem[IY+fetch()];		strcpy(inst, "");	break;
 //				LD (IY+d), r
 				case	0x77	: //	LD (IY+d), A
-					mem[IY+fetch()]=A;	ticks=19;	break;
+					mem[IY+fetch()]=A;	ticks=19;	strcpy(inst, "");	break;
 				case	0x70	: //	LD (IY+d), B
-					mem[IY+fetch()]=B;	ticks=19;	break;
+					mem[IY+fetch()]=B;	ticks=19;	strcpy(inst, "");	break;
 				case	0x71	: //	LD (IY+d), C
-					mem[IY+fetch()]=C;	ticks=19;	break;
+					mem[IY+fetch()]=C;	ticks=19;	strcpy(inst, "");	break;
 				case	0x72	: //	LD (IY+d), D
-					mem[IY+fetch()]=D;	ticks=19;	break;
+					mem[IY+fetch()]=D;	ticks=19;	strcpy(inst, "");	break;
 				case	0x73	: //	LD (IY+d), E
-					mem[IY+fetch()]=E;	ticks=19;	break;
+					mem[IY+fetch()]=E;	ticks=19;	strcpy(inst, "");	break;
 				case	0x74	: //	LD (IY+d), H
-					mem[IY+fetch()]=H;	ticks=19;	break;
+					mem[IY+fetch()]=H;	ticks=19;	strcpy(inst, "");	break;
 				case	0x75	: //	LD (IY+d), L
-					mem[IY+fetch()]=L;	ticks=19;	break;
+					mem[IY+fetch()]=L;	ticks=19;	strcpy(inst, "");	break;
 					
 				case	0x36	: //	LD (IY+d), n
 					d=fetch();
-					mem[IY+d]=fetch();		break;
+					mem[IY+d]=fetch();		strcpy(inst, "");	break;
 //-------------------------CARGA DE 16 BITS IY ----------------------
 				case 	0x21	: //	LD IY, nn
 					n=fetch();
-					IY=getFrom2Reg(n,fetch());	ticks=14;	break;
+					IY=getFrom2Reg(n,fetch());	ticks=14;	strcpy(inst, "");	break;
 				case	0x2A	: //	LD IY, (nn)
 					n=fetch();
 					nn=getFrom2Reg(n,fetch()); 
 					n=fetch();
 					IY=getFrom2Reg	(mem[getFrom2Reg(n,fetch())],	mem[nn]);	
-												ticks=20;	break;
+												ticks=20;	strcpy(inst, "");	break;
 				case	0xF9	: //	LD SP, IY
-					SP=IY;						ticks=20;	break;
+					SP=IY;						ticks=20;	strcpy(inst, "");	break;
 //-------------------------SGRUPO ARITMETICO 8 BITS -------------------
 				case	0x86	: //	ADD A, (IY+d)
 					A=A+mem[IY+fetch()];
-					setAddFlags(A);				ticks=19;	break;
+					setAddFlags(A);				ticks=19;	strcpy(inst, "");	break;
 				default:
 					printf("Instruction with %2x %2x opcode not suported\n",opcode,subopcode);
 					stop=1;
 			}
 //		LD (HL), r
 		case	0x77	: //	LD (HL), A
-			mem[getFrom2Reg(H,L)]=A;		ticks=7;	break;
+			mem[getFrom2Reg(H,L)]=A;		ticks=7;	strcpy(inst, "");	break;
 		case	0x70	: //	LD (HL), B
-			mem[getFrom2Reg(H,L)]=B;		ticks=7;	break;
+			mem[getFrom2Reg(H,L)]=B;		ticks=7;	strcpy(inst, "");	break;
 		case	0x71	: //	LD (HL), C
-			mem[getFrom2Reg(H,L)]=C;		ticks=7;	break;
+			mem[getFrom2Reg(H,L)]=C;		ticks=7;	strcpy(inst, "");	break;
 		case	0x72	: //	LD (HL), D
-			mem[getFrom2Reg(H,L)]=D;		ticks=7;	break;
+			mem[getFrom2Reg(H,L)]=D;		ticks=7;	strcpy(inst, "");	break;
 		case	0x73	: //	LD (HL), E
-			mem[getFrom2Reg(H,L)]=E;		ticks=7;	break;
+			mem[getFrom2Reg(H,L)]=E;		ticks=7;	strcpy(inst, "");	break;
 		case	0x74	: //	LD (HL), H
-			mem[getFrom2Reg(H,L)]=H;		ticks=7;	break;
+			mem[getFrom2Reg(H,L)]=H;		ticks=7;	strcpy(inst, "");	break;
 		case	0x75	: //	LD (HL), L
-			mem[getFrom2Reg(H,L)]=L;		ticks=7;	break;
+			mem[getFrom2Reg(H,L)]=L;		ticks=7;	strcpy(inst, "");	break;
 		
 		case 	0x36	: // 	LD (HL), n
 			n=fetch(); 
-			mem[getFrom2Reg(H,L)]=d;		ticks=10;	break;
+			mem[getFrom2Reg(H,L)]=d;		ticks=10;	strcpy(inst, "");	break;
 		case	0x0A	://		LD A, (BC)
-			A=mem[getFrom2Reg(B,C)];		ticks=7;	break;
+			A=mem[getFrom2Reg(B,C)];		ticks=7;	strcpy(inst, "");	break;
 		case	0x1A	://		LD A, (DE)
-			A=mem[getFrom2Reg(D,E)];		ticks=7;	break;
+			A=mem[getFrom2Reg(D,E)];		ticks=7;	strcpy(inst, "");	break;
 		case	0x3A	://		LD A, (nn)
 			n=fetch();
-			A=mem[getFrom2Reg(fetch(),n)];	ticks=13;	break;
+			A=mem[getFrom2Reg(fetch(),n)];	ticks=13;	strcpy(inst, "");	break;
 		case	0x02	://		LD (BC), A
-			mem[getFrom2Reg(B,C)]=A;			ticks=7;	break;
+			mem[getFrom2Reg(B,C)]=A;			ticks=7;	strcpy(inst, "");	break;
 		case	0x12	://		LD (DE), A
-			mem[getFrom2Reg(D,E)]=A;			ticks=7;	break;
+			mem[getFrom2Reg(D,E)]=A;			ticks=7;	strcpy(inst, "");	break;
 		case	0x32	://		LD (nn), A
 			n=fetch();
-			mem[getFrom2Reg(n,fetch())]=A;	ticks=13;	break;
+			mem[getFrom2Reg(n,fetch())]=A;	ticks=13;	strcpy(inst, "");	break;
 //		GRUPO 0xED
 //--------------------------------------------------------------
 		case 	0xED	:
@@ -451,15 +461,15 @@ unsigned int decodeyexecute(const uint8_t opcode){
 //--------------------PENDIENTE AFECTAN BANDERAS (NO IMPLEMENTADO pag 108-110)------------------------
 
 				case	0x57	: //	LD A, I
-					A=I;					ticks=9;	break;
+					A=I;					ticks=9;	strcpy(inst, "");	break;
 				case	0x5F	: //	LD A, R
-					A=R;					ticks=9;	break;
+					A=R;					ticks=9;	strcpy(inst, "");	break;
 					
 					//NO HAY BANDERAS INVOLUCRADAS
 				case	0x47	: //	LD I, A
-					I=A;					ticks=9;	break;
+					I=A;					ticks=9;	strcpy(inst, "");	break;
 				case	0x4F	: //	LD R, A
-					R=A;					ticks=9;	break;
+					R=A;					ticks=9;	strcpy(inst, "");	break;
 					
 					
 					//CARGA DE 16 BITS 
@@ -470,42 +480,42 @@ unsigned int decodeyexecute(const uint8_t opcode){
 					n=fetch();nn=getFrom2Reg(n,fetch());
 					C=mem[nn];
 					n=fetch();nn=getFrom2Reg(n,fetch());
-					B=mem[nn];					ticks=20;	break;
+					B=mem[nn];					ticks=20;	strcpy(inst, "");	break;
 				case	0x5B	: //	LD DE, (nn)
 					n=fetch();nn=getFrom2Reg(n,fetch());
 					E=mem[nn];
 					n=fetch();nn=getFrom2Reg(n,fetch());
-					D=mem[nn];					ticks=20;	break;
+					D=mem[nn];					ticks=20;	strcpy(inst, "");	break;
 				case	0x6B	: //	LD HL, (nn)
 					n=fetch();nn=getFrom2Reg(n,fetch());
 					H=mem[nn];
 					n=fetch();nn=getFrom2Reg(n,fetch());
-					L=mem[nn];					ticks=20;	break;
+					L=mem[nn];					ticks=20;	strcpy(inst, "");	break;
 				case 	0x7B	: //	LD SP, (nn)
 					n=fetch();
 					nn=getFrom2Reg(n,fetch()); 
 					n=fetch();
 					SP=getFrom2Reg	(mem[getFrom2Reg(n,fetch())],	mem[nn]);	
-												ticks=20;	break;
+												ticks=20;	strcpy(inst, "");	break;
 					
 //-------------------------LD (nn), dd		(nn + 1) <- ddh, (nn) <- ddl
 				case	0x43	: //	LD (nn), BC
 					n=fetch();
 					mem[getFrom2Reg(n,fetch())]=C;	n=fetch();	
-					mem[getFrom2Reg(n,fetch())]=B;		ticks=16;	break;
+					mem[getFrom2Reg(n,fetch())]=B;		ticks=16;	strcpy(inst, "");	break;
 				case	0x53	: //	LD (nn), DE
 					n=fetch();
 					mem[getFrom2Reg(n,fetch())]=E;	n=fetch();	
-					mem[getFrom2Reg(n,fetch())]=D;		ticks=16;	break;
+					mem[getFrom2Reg(n,fetch())]=D;		ticks=16;	strcpy(inst, "");	break;
 				case	0x63	: //	LD (nn), HL
 					n=fetch();
 					mem[getFrom2Reg(n,fetch())]=L;	n=fetch();	
-					mem[getFrom2Reg(n,fetch())]=H;		ticks=16;	break;
+					mem[getFrom2Reg(n,fetch())]=H;		ticks=16;	strcpy(inst, "");	break;
 				case	0x73	: //	LD (nn), SP
 					n=fetch();
 					mem[getFrom2Reg(n,fetch())]=SP;	n=fetch();	
 					mem[getFrom2Reg(n,fetch())]=getFirst(SP);	
-														ticks=16;	break;
+														ticks=16;	strcpy(inst, "");	break;
 				default:
 					printf("Instruction with %2x %2x opcode not suported\n",opcode,subopcode);
 					stop=1;
@@ -517,37 +527,37 @@ unsigned int decodeyexecute(const uint8_t opcode){
 //					LD dd,nn
 		case	0x01	: //	LD BC, nn
 			n=fetch();
-			B=n; C=fetch();						ticks=9;	break;
+			B=n; C=fetch();						ticks=9;	strcpy(inst, "");	break;
 		case	0x11	: //	LD DE, nn
 			n=fetch();
-			D=n; E=fetch();						ticks=9;	break;
+			D=n; E=fetch();						ticks=9;	strcpy(inst, "");	break;
 		case	0x21	: //	LD HL, nn
 			n=fetch();
-			H=n;; L=fetch();					ticks=9;	break;
+			H=n;; L=fetch();					ticks=9;	strcpy(inst, "");	break;
 		case	0x31	: //	LD SP, nn
 			n=fetch();
-			SP=getFrom2Reg(n,fetch());			ticks=9;	break;
+			SP=getFrom2Reg(n,fetch());			ticks=9;	strcpy(inst, "");	break;
 		
 		case	0x2A	: //	LD HL, (nn)
 			n=fetch();
 			L=mem[getFrom2Reg(n,fetch())];	n=fetch();
-			H=mem[getFrom2Reg(n,fetch())];		ticks=16;	break;
+			H=mem[getFrom2Reg(n,fetch())];		ticks=16;	strcpy(inst, "");	break;
 		case	0x22	: //	LD (nn), HL			(nn + 1) <- H, (nn) <- L
 			n=fetch();
 			mem[getFrom2Reg(n,fetch())]=L;	n=fetch();	
-			mem[getFrom2Reg(n,fetch())]=H;		ticks=16;	break;
+			mem[getFrom2Reg(n,fetch())]=H;		ticks=16;	strcpy(inst, "");	break;
 		case	0xF9	: //	LD SP, HL
-			SP=getFrom2Reg(H,L);				ticks=6;	break;
+			SP=getFrom2Reg(H,L);				ticks=6;	strcpy(inst, "");	break;
 //		PUSH qq
 		case	0xC5	: //	PUSH BC
 			
-												ticks=11;	break;
+												ticks=11;	strcpy(inst, "");	break;
 		case	0xD5	: //	PUSH DE
-												ticks=11;	break;
+												ticks=11;	strcpy(inst, "");	break;
 		case	0xE5	: //	PUSH HL
-												ticks=11;	break;
+												ticks=11;	strcpy(inst, "");	break;
 		case	0xF5	: //	PUSH AF
-												ticks=11;	break;
+												ticks=11;	strcpy(inst, "");	break;
 			
 			
 		
@@ -562,94 +572,122 @@ unsigned int decodeyexecute(const uint8_t opcode){
 		case 	0x80	: //ADD A,B  
 			A=A+B;				
 			setAddFlags(A);				
-			ticks=4;	break;	   	
+			ticks=4;	strcpy(inst, "");	break;	   	
 		case 	0x81	://ADD A,C 
 			A=A+C;				
 			setAddFlags(A);				
-			ticks=4;	break;    	
+			ticks=4;	strcpy(inst, "");	break;    	
 		case 	0x82	://ADD A,D
 			A=A+D;
 			setAddFlags(A);				
-			ticks=4;	break;      	
+			ticks=4;	strcpy(inst, "");	break;      	
 		case 	0x83	://ADD A,E
 			A=A+E;
 			setAddFlags(A);				
-			ticks=4;	break;    	
+			ticks=4;	strcpy(inst, "");	break;    	
 		case 	0x84	://ADD A,H
 			A=A+H;
 			setAddFlags(A);				
-			ticks=4;	break;     	
+			ticks=4;	strcpy(inst, "");	break;     	
 		case 	0x85	://ADD A,L    
 			A=A+L;
 			setAddFlags(A);				
-			ticks=4;	break; 
+			ticks=4;	strcpy(inst, "");	break; 
 		case 	0x86	://ADD A,(HL)
 			A=A+mem[getFrom2Reg(H,L)];
 			setAddFlags(A);
-			ticks=7;				break;   	
+			ticks=7;				strcpy(inst, "");	break;   	
 		case 	0x87	://ADD A,A 
 			A=A+A;
 			setAddFlags(A);				
-			ticks=4;	break;  
+			ticks=4;	strcpy(inst, "");	break;  
 		case	0xC6	://ADD A,n
 			n=fetch();
 			A=A+n;
 			setAddFlags(A);				
-			ticks=7;	break; 
+			ticks=7;	strcpy(inst, "");	break; 
 			
 		/*case 	0x88	://ADC A,B 
-							break;     	
+							strcpy(inst, "");	break;     	
 		case 	0x89	://ADC A,C 
-							break;     	
+							strcpy(inst, "");	break;     	
 		case 	0x8A	://ADC A,D 
-							break;     	
+							strcpy(inst, "");	break;     	
 		case 	0x8B	://ADC A,E 
-							break;     	
+							strcpy(inst, "");	break;     	
 		case 	0x8C	://ADC A,H 
-							break;     	
+							strcpy(inst, "");	break;     	
 		case 	0x8D	://ADC A,L 
-							break;     	
+							strcpy(inst, "");	break;     	
 		case 	0x8E	://ADC A,(HL)  	
-							break; 
+							strcpy(inst, "");	break; 
 		case 	0x8F	://ADC A,A 
-							break;   */
+							strcpy(inst, "");	break;   */
 							  	
 		case 	0x90	://SUB B   
 			A=A-B;
 			setAddFlags(A);				
-			ticks=4;	break;      	
+			ticks=4;	strcpy(inst, "");	break;      	
 		case 	0x91	://SUB C   
 			A=A-C;
 			setAddFlags(A);				
-			ticks=4;	break;      	
+			ticks=4;	strcpy(inst, "");	break;      	
 		case 	0x92	://SUB D   
 			A=A-D;
 			setAddFlags(A);				
-			ticks=4;	break;      	
+			ticks=4;	strcpy(inst, "");	break;      	
 		case 	0x93	://SUB E   
 			A=A-H;
 			setAddFlags(A);				
-			ticks=4;	break;      	
+			ticks=4;	strcpy(inst, "");	break;      	
 		case 	0x94	://SUB H     
 			A=A-H;
 			setAddFlags(A);				
-			ticks=4;	break;    	
+			ticks=4;	strcpy(inst, "");	break;    	
 		case 	0x95	://SUB L   
 			A=A-L;
 			setAddFlags(A);				
-			ticks=4;	break;      	
+			ticks=4;	strcpy(inst, "SUB L");	break;      	
 		case 	0x96	://SUB (HL)
 			A=A-mem[getFrom2Reg(H,L)];
 			setAddFlags(A);
-			ticks=7;		break;     	
+			ticks=7;		strcpy(inst, "SUB (HL)");	break;     	
 		case 	0x97	://SUB A   
 			A=A-A;
 			setAddFlags(A);				
-			ticks=4;	break;
+			ticks=4;	strcpy(inst, "SUB A");	break;
 		case	0xD6	: //SUB n 
 			A=A-fetch();
 			setAddFlags(A);
-			ticks=7;		break;      	
+			ticks=7;		strcpy(inst, "SUB n");	break;   
+		case	0x3C	: //INC A
+			A++;
+			setIncFlags(A);
+			ticks=4;	strcpy(inst, "INC A"); break;  
+		case	0x04	: //INC B
+			B++;
+			setIncFlags(B);
+			ticks=4;	strcpy(inst, "INC B"); break;
+		case	0x0C	: //INC C
+			C++;
+			setIncFlags(C);
+			ticks=4;	strcpy(inst, "INC C"); break;
+		case	0x14	: //INC D
+			D++;
+			setIncFlags(D);
+			ticks=4;	strcpy(inst, "INC D"); break;	
+		case	0x1C	: //INC E
+			E++;
+			setIncFlags(E);
+			ticks=4;	strcpy(inst, "INC E"); break;
+		case	0x24	: //INC H
+			H++;
+			setIncFlags(H);
+			ticks=4;	strcpy(inst, "INC H"); break;
+		case	0x2C	: //INC L
+			L++;
+			setIncFlags(L);
+			ticks=4;	strcpy(inst, "INC L"); break;
 
 //----------------------------------------------
 //				GRUPOS DE PROPOSITO GENERAL ARITMETICO Y CONTROL 
@@ -662,48 +700,48 @@ unsigned int decodeyexecute(const uint8_t opcode){
 					nn=getFrom2Reg(H,L); //nn es una variable temporal para guardar valores de 16 bits, en este caso HL
 		            nn+=getFrom2Reg(B,C);      
 					H=getFirst(nn); L=nn;
-					ticks=11;	break;
+					ticks=11;	strcpy(inst, "");	break;
 		case	0x19	://ADD HL,DE
 					nn=getFrom2Reg(H,L); //nn es una variable temporal para guardar valores de 16 bits, en este caso HL
 		            nn+=getFrom2Reg(D,E);      
 					H=getFirst(nn); L=nn;
-					ticks=11;	break;
+					ticks=11;	strcpy(inst, "");	break;
 		case	0x29	://ADD HL,HL
 					nn=getFrom2Reg(H,L); //nn es una variable temporal para guardar valores de 16 bits, en este caso HL
 		            nn+=getFrom2Reg(H,L);      
 					H=getFirst(nn); L=nn;
-					ticks=11;	break;
+					ticks=11;	strcpy(inst, "");	break;
 		case	0x39	://ADD HL,SP
 					nn=getFrom2Reg(H,L); //nn es una variable temporal para guardar valores de 16 bits, en este caso HL
 		            nn+=SP;      
 					H=getFirst(nn); L=nn;
-					ticks=11;	break;
+					ticks=11;	strcpy(inst, "");	break;
 		case	0x05	://DEC B
 					B--;	setDecFlags(B);
-					ticks=4;	break;
+					ticks=4;	strcpy(inst, "");	break;
 		case	0x0D	://DEC C
 					C--;	setDecFlags(C);
-					ticks=4;	break;
+					ticks=4;	strcpy(inst, "");	break;
 		case	0x15	://DEC D
 					D--;	setDecFlags(D);
-					ticks=4;	break;
+					ticks=4;	strcpy(inst, "");	break;
 		case	0x1D	://DEC E
 					E--;	setDecFlags(E);
-					ticks=4;	break;
+					ticks=4;	strcpy(inst, "");	break;
 		case	0x25	://DEC H
 					H--;	setDecFlags(H);
-					ticks=4;	break;
+					ticks=4;	strcpy(inst, "");	break;
 		case	0x2D	://DEC L
 					L--;	setDecFlags(L);
-					ticks=4;	break;
+					ticks=4;	strcpy(inst, "");	break;
 		case	0x3D	://DEC A
 					A--;	setDecFlags(A);
-					ticks=4;	break;
+					ticks=4;	strcpy(inst, "");	break;
 		case	0x35	://DEC HL
 					nn=getFrom2Reg(H,L);
 					nn--;	setDecFlags(nn);
 					H=getFirst(H);L=nn;
-					ticks=11;	break;
+					ticks=11;	strcpy(inst, "");	break;
 				
 //----------------------------------------------
 //				GRUPO DE ROTACIÓN Y DESPLAZAMIENTO 		 
@@ -721,90 +759,90 @@ unsigned int decodeyexecute(const uint8_t opcode){
 			n=fetch();
 			nn=getFrom2Reg(fetch(),n);
 			PC=nn;
-			ticks=10;		break;
+			ticks=10;		strcpy(inst, "");	break;
 		case	0xC2	://JP NZ, nn
 			n=fetch();
 			nn=getFrom2Reg(fetch(),n);
 			if(Z==0){
 				PC=nn;
-			}ticks=10;		break;
+			}ticks=10;		strcpy(inst, "");	break;
 		case	0xCA	://JP Z, nn
 			n=fetch();
 			nn=getFrom2Reg(fetch(),n);
 			if(Z==1){
 				PC=nn;
-			}ticks=10;		break;
+			}ticks=10;		strcpy(inst, "");	break;
 		case	0xD2	://JP NC, nn
 			n=fetch();
 			nn=getFrom2Reg(fetch(),n);
 			if(NCf==0){
 				PC=nn;
-			}ticks=10;		break;
+			}ticks=10;		strcpy(inst, "");	break;
 		case	0xDA	://JP C, nn
 			n=fetch();
 			nn=getFrom2Reg(fetch(),n);
 			if(NCf==1){
 				PC=nn;
-			}ticks=10;		break;
+			}ticks=10;		strcpy(inst, "");	break;
 		case	0xE2	://JP PO, nn
 			n=fetch();
 			nn=getFrom2Reg(fetch(),n);
 			if(PV==0){
 				PC=nn;
-			}ticks=10;		break;
+			}ticks=10;		strcpy(inst, "");	break;
 		case	0xEA	://JP PE, nn
 			n=fetch();
 			nn=getFrom2Reg(fetch(),n);
 			if(PV==1){
 				PC=nn;
-			}ticks=10;		break;
+			}ticks=10;		strcpy(inst, "");	break;
 		case	0xF2	://JP P, nn
 			n=fetch();
 			nn=getFrom2Reg(fetch(),n);
 			if(S==0){
 				PC=nn;
-			}ticks=10;		break;
+			}ticks=10;		strcpy(inst, "");	break;
 		case	0xFA	://JP M, nn
 			n=fetch();
 			nn=getFrom2Reg(fetch(),n);
 			if(S==1){
 				PC=nn;
-			}ticks=10;		break;	
+			}ticks=10;		strcpy(inst, "");	break;	
 		case	0x18	://JR e
 			e=fetch();
 			PC=PC+e;
-			ticks=12;		break;
+			ticks=12;		strcpy(inst, "");	break;
 		case	0x38	://JR C, e
 			e=fetch();
 			if(NCf==1){
 				PC=PC+e;
 				ticks=12;
 			}else
-				ticks=7;	break;
+				ticks=7;	strcpy(inst, "");	break;
 		case	0x30	://JR NC, e
 			e=fetch();
 			if(NCf==1){
 				PC=PC+e;
 				ticks=12;
 			}else
-				ticks=7;	break;
+				ticks=7;	strcpy(inst, "");	break;
 		case	0x28	://JR Z, e
 			e=fetch();
 			if(Z==1){
 				PC=PC+e;
 				ticks=12;
 			}else
-				ticks=7;	break;
+				ticks=7;	strcpy(inst, "");	break;
 		case	0x20	://JR NZ, e
 			e=fetch();
 			if(Z==0){
 				PC=PC+e;
 				ticks=12;
 			}else
-				ticks=7;	break;
+				ticks=7;	strcpy(inst, "");	break;
 		case	0xE9	://JP (HL)
 			PC=mem[getFrom2Reg(H,L)];
-			ticks=4;		break;
+			ticks=4;		strcpy(inst, "");	break;
 		case	0x10	://DJNZ, e
 			B=B-1;
 			e=fetch();
@@ -812,7 +850,7 @@ unsigned int decodeyexecute(const uint8_t opcode){
 				PC=PC+e;
 				ticks=13;
 			}else
-				ticks=8;	break;
+				ticks=8;	strcpy(inst, "");	break;
 //----------------------------------------------
 //				GRUPO DE LLAMADA Y RETORNO 
 //----------------------------------------------
@@ -883,19 +921,30 @@ void printMem(uint8_t dir){
 
 void printScreen(int memPage,uint8_t opcode){
 	// Flags S, Z, Hf,N, PV, NCf;
-	printf("---Enter to continue---\n");
 	printf("Registers:					Flags:\n");
-	printf("A:%i	B:%i	C:%i				Z:",A,B,C);		printf(Z ? "true\n" : "false\n");
-	printf("D:%i	E:%i	F:%i				S:",D,E,F);		printf(S ? "true\n" : "false\n");
-	printf("H:%i	L:%i	HL:%i				H:",H,L,getFrom2Reg(H,L));printf(Hf ? "true\n" : "false\n");
-	printf("I:%i	R:%i	IR:%i				N:",I,R,getFrom2Reg(I,R));printf(N ? "true\n" : "false\n");
-	printf("SP:%i		IX:%i				P/V:",SP,IX,PV);	printf(PV ? "true\n" : "false\n");
-	printf("PC:%i		IY:%i		Data:%2X		NC:",PC,IY,opcode);		printf(NCf ? "true\n" : "false\n");
-	printf("		---Memory---");
+	printf("A:%02X	B:%02X	C:%02X				Z:",A,B,C);		printf(Z ? "true\n" : "false\n");
+	printf("D:%02X	E:%i	F:%02X				S:",D,E,F);		printf(S ? "true\n" : "false\n");
+	printf("H:%02X	L:%02X	HL:%02X				H:",H,L,getFrom2Reg(H,L));printf(Hf ? "true\n" : "false\n");
+	printf("I:%02X	R:%02X	IR:%02X				N:",I,R,getFrom2Reg(I,R));printf(N ? "true\n" : "false\n");
+	printf("SP:%02X		IX:%02X				P/V:",SP,IX,PV);	printf(PV ? "true\n" : "false\n");
+	printf("PC:%02X		IY:%02X		Data:%02X		NC:",PC,IY,opcode);		printf(NCf ? "true" : "false");
+	printf("		Instruction: %s\n",inst);
 	printMem(0);
-}
 	
-int main(){
+}
+void printTitle(){
+	printf(" _________ _____     _______    \n");
+	printf("/____    //  _  \\   /  __  /   \n");
+	printf("  /     / >     <  /  / / /  \n");
+	printf(" /     /_/   _   \\/  /_/ /  \n");
+	printf("/_______________________/ \n");
+	printf("Emu Z80 de omargabagu.\n");
+	printf("\n");
+}
+
+
+int run(){
+	
 	/*
 	uint16_t data = 31245;	//0111 1010  0000 1101 
 	uint8_t n=122;			//0111 1010    
@@ -919,17 +968,81 @@ int main(){
 	printf("HP first (H): ");printBB(getFirst(getFrom2Reg(H,L)));
 	*/
 	//RUN (ciclo de ejecución)
-	
+	int opc;
+	system("cls");
 	loadProgram(0, "CONC.HEX");
 	printScreen(0,0);
-	for (;stop==0;){
-		getchar(); 
+	for (int i=0;stop==0&&opc!='s';i++){
+		//printf("%i",i);
+		fflush(stdin);
+		//getchar(); 
+		scanf("%i",&opc);
 		system("cls");
 		uint8_t opcode = fetch();
 		decodeyexecute(opcode);
 		printScreen(0,opcode);
-		
 	}
+	printf("---Enter to continue---\n");
+	fflush(stdin);
+	getchar(); 
+
+	
+	
+
 	//printf("Fin del programa");
 	return 0;
+}
+void printCredits(){
+	system("cls");
+	printTitle();
+	printf("Creditos:\n");
+	printf("------------Colaboradores-\n");
+	printf("		Desarrollo general:\n");
+	printf("	Aguirre Córdova Omar Gabriel\n");
+	printf("		Instrucciónes:\n");
+	printf("	Aguirre Córdova Omar Gabriel\n");
+	printf("	Chávez Mejía Luis Héctor\n");
+	printf("	Castro Rodríguez Ulises\n");
+	printf("		Memoria y archivos:\n");
+	printf("	Castro Rodríguez Ulises\n");//
+	printf("		Menu\n");
+	printf("	Juárez Juárez María José\n");
+	printf("	Aguirre Córdova Omar Gabriel\n");
+	printf("		Manual\n");
+	printf("	Castañeda Aranda Alma Adriana\n");
+	printf("		Testing\n");
+	printf("	Chávez Mejía Luis Héctor\n");
+	printf("------------Profesor\n");
+	printf("	\n");
+	printf("\n");
+	fflush(stdin);
+	getchar(); 
+	return;
+}
+void resetVar(){
+	A=B=C=D=E=H=L=F=I=R=0;
+	SP=PC=IX=IY=0;
+	S=Z=Hf=N=PV=NCf=stop=0;
+}
+void main(){
+	
+	int opc=1;
+	do {
+		system("cls");
+		printTitle();
+		printf("Menu:\nIngresar el caracter para acceder a la opcion.\n");
+		printf("1) Cambiar programa\n2) Correr programa\n3) Editar memoria\n4) Mostrar creditos\n5) Salir\n");
+		scanf("%i",&opc);
+		switch (opc){
+			case 2:
+				run();
+				resetVar();
+				break;
+			case 4:
+				printCredits();
+				break;
+			default:
+				break;
+		}
+	}while ((opc!=5));
 }
