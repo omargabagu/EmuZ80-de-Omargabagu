@@ -3,6 +3,13 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdint.h> //Para tipos como unit8_t
+#define LINUXX 0
+#ifdef	_linux_
+#define LINUXX 1
+#define LIMPIAR "clear"
+#elif	_WIN32 || _WIN64
+#define	LIMPIAR "cls"
+#endif
 
 // Variables globales 
 	uint8_t A, B, C, D, E, H, L, F, I, R;
@@ -17,9 +24,7 @@
 
 	uint8_t mem [65536];//del 0 al 65,535 (0-1111111111111111)
 	
-int loadProgram(uint8_t dirInicio, char *fileName){
-    char line[44];
-    char ins[20];    
+int loadProgram(uint16_t dirInicio, char *fileName){
     char ignore[7];
     int totalIns = 0;
     int numInstructions;
@@ -39,16 +44,19 @@ int loadProgram(uint8_t dirInicio, char *fileName){
         totalIns += numInstructions;
         while (numInstructions != 0)
         {
-            fscanf(PROGRAM, "%2x", &mem[currentDir]);
+            fscanf(PROGRAM, "%2hhx", &mem[currentDir]);
             ++ currentDir;
             -- numInstructions;
         }
         fscanf(PROGRAM, "%s", ignore);
-        //fgetc(PROGRAM);
+		if (LINUXX)
+		{
+			fgetc(PROGRAM);
+		}
         fgetc(PROGRAM);
     }
     
-    fclose(PROGRAM);
+    return fclose(PROGRAM);
 }
 
 void push (int8_t data)
@@ -279,6 +287,7 @@ unsigned int decodeyexecute(const uint8_t opcode){
 		case	0x26	: //	LD H, n			
 			n = fetch();
 			H=n;		ticks=7;	strcpy(inst, "LD H, n");	break;
+
 		case	0x2E	: //	LD L, n			
 			n = fetch();
 			L=n;		ticks=7;	strcpy(inst, "LD L, n");	break;
@@ -341,18 +350,19 @@ unsigned int decodeyexecute(const uint8_t opcode){
 //--------------------------CARGA 16 BITS IX--------------
 				case 	0x21	: //	LD IX, nn
 					n=fetch();
-					IX=getFrom2Reg(n,fetch());	ticks=14;	strcpy(inst, "LD IX, nn");	break;
+					IX=getFrom2Reg(fetch(),n);	ticks=14;	strcpy(inst, "LD IX, nn");	break;
+				case	0x22	: //	LD (nn), IX
+					n=fetch();
+					nn=getFrom2Reg(fetch(),n);	ticks=20;	strcpy(inst, "LD (nn), IX");	break;
+					//guardando en nn
+					mem[nn]=getFirst(IX);
+					mem[nn+1]=IX;
 				case	0x2A	: //	LD IX, (nn)
 					n=fetch();
 					nn=getFrom2Reg(n,fetch()); 
 					n=fetch();
 					IX=getFrom2Reg	(mem[getFrom2Reg(n,fetch())],	mem[nn]);	
 												ticks=20;	strcpy(inst, "LD IX, (nn)");	break;
-				case 	0x22	: //	LD (nn), IX
-					n=fetch();
-					mem[getFrom2Reg(n,fetch())]=IX;	n=fetch();	
-					mem[getFrom2Reg(n,fetch())]=getFirst(IX);		
-												ticks=16;	strcpy(inst, "LD (nn), IX");	break;
 				case	0xF9	: //	LD SP, IX
 					SP=IX;						ticks=20;	strcpy(inst, "LD SP, IX");	break;
 				case	0x86	: //	ADD A, (IX+d)
@@ -405,7 +415,13 @@ unsigned int decodeyexecute(const uint8_t opcode){
 //-------------------------CARGA DE 16 BITS IY ----------------------
 				case 	0x21	: //	LD IY, nn
 					n=fetch();
-					IY=getFrom2Reg(n,fetch());	ticks=14;	strcpy(inst, "LD IY, nn");	break;
+					IY=getFrom2Reg(fetch(),n);	ticks=14;	strcpy(inst, "LD IY, nn");	break;
+				case	0x22	: //	LD (nn), IY
+					n=fetch();
+					nn=getFrom2Reg(fetch(),n);	ticks=20;	strcpy(inst, "LD (nn), IY");	break;
+					//guardando en nn
+					mem[nn]=getFirst(IY);
+					mem[nn+1]=IY;
 				case	0x2A	: //	LD IY, (nn)
 					n=fetch();
 					nn=getFrom2Reg(n,fetch()); 
@@ -437,10 +453,9 @@ unsigned int decodeyexecute(const uint8_t opcode){
 			mem[getFrom2Reg(H,L)]=H;		ticks=7;	strcpy(inst, "LD (HL), H");	break;
 		case	0x75	: //	LD (HL), L
 			mem[getFrom2Reg(H,L)]=L;		ticks=7;	strcpy(inst, "LD (HL), L");	break;
-		
 		case 	0x36	: // 	LD (HL), n
 			n=fetch(); 
-			mem[getFrom2Reg(H,L)]=d;		ticks=10;	strcpy(inst, "LD (HL), n");	break;
+			mem[getFrom2Reg(H,L)]=n;		ticks=10;	strcpy(inst, "LD (HL), n");	break;
 		case	0x0A	://		LD A, (BC)
 			A=mem[getFrom2Reg(B,C)];		ticks=7;	strcpy(inst, "LD A, (BC)");	break;
 		case	0x1A	://		LD A, (DE)
@@ -880,64 +895,80 @@ unsigned int decodeyexecute(const uint8_t opcode){
 //----------------------------------------------
 		case	0xCD	:	//CALL nn
 			n=fetch();
-			PC=getFrom2Reg(n,fetch());
+			PC=getFrom2Reg(fetch(),n);
 			ticks=17;		strcpy(inst, "CALL nn");	break;
 		case	0xC4	:	//CALL NZ, nn
 			if(Z==0){
 				n=fetch();
-				PC=getFrom2Reg(n,fetch());
+				PC=getFrom2Reg(fetch(),n);
 				ticks=17;
 			}else
-				ticks=10;	strcpy(inst, "CALL NZ, nn");	break;
+				ticks=10;
+			strcpy(inst, "CALL NZ, nn");
+			break;
 		case	0xCC	:	//CALL Z, nn
 			if(Z==1){
 				n=fetch();
-				PC=getFrom2Reg(n,fetch());
+				PC=getFrom2Reg(fetch(),n);
 				ticks=17;
 			}else
-				ticks=10;	strcpy(inst, "CALL Z, nn");	break;
+				ticks=10;
+			strcpy(inst, "CALL Z, nn");
+			break;
 		case	0xD4	:	//CALL NC, nn
 			if(NCf==0){
 				n=fetch();
-				PC=getFrom2Reg(n,fetch());
+				PC=getFrom2Reg(fetch(),n);;
 				ticks=17;
 			}else
-				ticks=10;	strcpy(inst, "CALL NC, nn");		break;
+				ticks=10;
+			strcpy(inst, "CALL NC, nn");
+			break;
 		case	0xDC	:	//CALL C, nn
 			if(NCf==1){
 				n=fetch();
-				PC=getFrom2Reg(n,fetch());
+				PC=getFrom2Reg(fetch(),n);
 				ticks=17;
 			}else
-				ticks=10;	strcpy(inst, "CALL C, nn");		break;
+				ticks=10;
+			strcpy(inst, "CALL C, nn");
+			break;
 		case	0xE4	:	//CALL PO, nn
 			if(PV==0){
 				n=fetch();
-				PC=getFrom2Reg(n,fetch());
+				PC=getFrom2Reg(fetch(),n);
 				ticks=17;
 			}else
-				ticks=10;	strcpy(inst, "CALL PO, nn");	break;
+				ticks=10;
+			strcpy(inst, "CALL PO, nn");
+			break;
 		case	0xEC	:	//CALL PE, nn
 			if(PV==1){
 				n=fetch();
-				PC=getFrom2Reg(n,fetch());
+				PC=getFrom2Reg(fetch(),n);
 				ticks=17;
 			}else
-				ticks=10;	strcpy(inst, "CALL PE, nn");	break;
+				ticks=10;
+			strcpy(inst, "CALL PE, nn");
+			break;
 		case	0xF4	:	//CALL P, nn
 			if(S==0){
 				n=fetch();
-				PC=getFrom2Reg(n,fetch());
+				PC=getFrom2Reg(fetch(),n);
 				ticks=17;
 			}else
-				ticks=10;	strcpy(inst, "CALL P, nn");		break;
+				ticks=10;
+			strcpy(inst, "CALL P, nn");
+			break;
 		case	0xFC	:	//CALL M, nn
 			if(S==1){
 				n=fetch();
-				PC=getFrom2Reg(n,fetch());
+				PC=getFrom2Reg(fetch(),n);
 				ticks=17;
 			}else
-				ticks=10;	strcpy(inst, "CALL M, nn");		break;
+				ticks=10;
+			strcpy(inst, "CALL M, nn");
+			break;
 //----------------------------------------------
 //				GRUPO INPUT Y PUTPUT
 //----------------------------------------------
@@ -1076,14 +1107,14 @@ int run(){
 	*/
 	//RUN (ciclo de ejecución)
 	int opc;
-	system("cls");
+	system(LIMPIAR);
 	//loadProgram(0, "FIBO.HEX");
 	printScreen(0,0);
 	for (int i=0;stop==0&&opc!='s';i++){
 		//printf("%i",i);
 		fflush(stdin);
 		getchar();
-		system("cls");
+		system(LIMPIAR);
 		uint8_t opcode = fetch();
 		decodeyexecute(opcode);
 		printScreen(0,opcode);
@@ -1103,7 +1134,7 @@ int run(){
 	return 0;
 }
 void printCredits(){
-	system("cls");
+	system(LIMPIAR);
 	printTitle();
 	printf("Creditos:\n");
 	printf("------------Colaboradores-\n");
@@ -1139,7 +1170,7 @@ void main(){
 	
 	int opc=1;
 	do {
-		system("cls");
+		system(LIMPIAR);
 		printTitle();
 		printf("Menú:\nIngresar el caracter para acceder a la opción.\n");
 		printf("1) Cargar programa\n2) Correr programa\n3) Editar memoria\n4) Mostrar creditos\n5) Salir\n");
