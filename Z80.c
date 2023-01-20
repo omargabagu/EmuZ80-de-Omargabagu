@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include <locale.h>
 #include <stdint.h> //Para tipos como unit8_t
 #define LINUXX 0
 #ifdef	_linux_
@@ -20,6 +19,7 @@
 	int totalIns = 0;
 	char inst[15]="";
 	char error[50]="";
+	uint16_t cursor;
 
 
 
@@ -152,6 +152,16 @@ void setDecFlags(uint8_t res){
 	//Hf PENDIENTE
 	//PV PENDIENTE
 	N=true;
+}
+void setIRFlags(uint8_t res){
+	if(res<0){S=1;}else {S=0;}
+	if(res==0){Z=1;}else {Z=0;}
+	Hf=0;
+	//PV PENDIENTE contains contents of IFF2.
+	N=0;
+	//C NO SE AFECTA
+	//If an interrupt occurs during execution of this instruction, the parity flag contains a 0.
+	
 }
 //decodificar y ejecutar, retorna los tick del relog :D 
 unsigned int decodeyexecute(const uint8_t opcode){
@@ -468,22 +478,22 @@ unsigned int decodeyexecute(const uint8_t opcode){
 			mem[getFrom2Reg(B,C)]=A;			ticks=7;	strcpy(inst, "LD (BC), A");	break;
 		case	0x12	://		LD (DE), A
 			mem[getFrom2Reg(D,E)]=A;			ticks=7;	strcpy(inst, "LD (DE), A");	break;
+		
 		case	0x32	://		LD (nn), A
 			n=fetch();
-			mem[getFrom2Reg(n,fetch())]=A;	ticks=13;	strcpy(inst, "LD (nn), A");	break;
+			mem[getFrom2Reg(fetch(),n)]=A;	ticks=13;	strcpy(inst, "LD (nn), A");	break;
 //		GRUPO 0xED
 //--------------------------------------------------------------
 		case 	0xED	:
 			subopcode=fetch();
 			switch (opcode){
-//--------------------PENDIENTE AFECTAN BANDERAS (NO IMPLEMENTADO pag 108-110)------------------------
 
 				case	0x57	: //	LD A, I
-					A=I;					ticks=9;	strcpy(inst, "LD A, I");	break;
+					A=I;					
+					setIRFlags(I);			ticks=9;	strcpy(inst, "LD A, I");	break;
 				case	0x5F	: //	LD A, R
-					A=R;					ticks=9;	strcpy(inst, "LD A, R");	break;
-					
-					//NO HAY BANDERAS INVOLUCRADAS
+					A=R;					
+					setIRFlags(R);			ticks=9;	strcpy(inst, "LD A, R");	break;
 				case	0x47	: //	LD I, A
 					I=A;					ticks=9;	strcpy(inst, "LD I, A");	break;
 				case	0x4F	: //	LD R, A
@@ -569,13 +579,13 @@ unsigned int decodeyexecute(const uint8_t opcode){
 //		PUSH qq
 		case	0xC5	: //	PUSH BC
 			
-												ticks=11;	strcpy(inst, "PUSH BC");	break;
+			push(C);push(B);					ticks=11;	strcpy(inst, "PUSH BC");	break;
 		case	0xD5	: //	PUSH DE
-												ticks=11;	strcpy(inst, "PUSH DE");	break;
+			push(E);push(D);					ticks=11;	strcpy(inst, "PUSH DE");	break;
 		case	0xE5	: //	PUSH HL
-												ticks=11;	strcpy(inst, "PUSH HL");	break;
+			push(L);push(H);					ticks=11;	strcpy(inst, "PUSH HL");	break;
 		case	0xF5	: //	PUSH AF
-												ticks=11;	strcpy(inst, "PUSH AF");	break;
+			push(F);push(A);					ticks=11;	strcpy(inst, "PUSH AF");	break;
 			
 			
 		
@@ -1006,6 +1016,31 @@ void printMem(uint8_t dir){
     }
     
 }
+void printMemEdit(uint8_t dir){
+    uint8_t line = dir / 16;
+
+    printf("\n\t");
+    for (int i = 0; i < 16; i++)
+    {
+        printf(" %02X", i);
+    }
+    printf("\n\n");
+    
+    for (int i = line; i < line+16; i++)
+    {
+        printf("%04X\t", i*16);
+        for (int j = 0; j < 16; j++){
+        	if(cursor==(i*16)+j){
+				printf("_%02X", mem[(i*16)+j]);
+			}else{
+				printf(" %02X", mem[(i*16)+j]);
+			}
+            
+        }
+        printf("\n");
+    }
+    
+}
 
 void printScreen(int memPage,uint8_t opcode){
 	// Flags S, Z, Hf,N, PV, NCf;
@@ -1018,7 +1053,7 @@ void printScreen(int memPage,uint8_t opcode){
 	printf("PC:%02X		IY:%02X		Data:%02X		NC:",PC,IY,opcode);		printf(NCf ? "true" : "false");
 	printf("		Last Instruction: %s\n",inst);
 	printMem(0);
-	
+	printf("Enter: Continue		x:Exit to menu\n>");
 }
 void printTitle(){
 	printf(" _________ _____     _______    \n");
@@ -1080,14 +1115,14 @@ int run(){
 	printf("HP first (H): ");printBB(getFirst(getFrom2Reg(H,L)));
 	*/
 	//RUN (ciclo de ejecución)
-	int opc;
+	uint16_t opc;
 	system(LIMPIAR);
 	//loadProgram(0, "FIBO.HEX");
 	printScreen(0,0);
-	for (int i=0;stop==0&&opc!='s';i++){
-		//printf("%i",i);
+	for (int i=0;stop==0&&opc!='x';i++){
+		
 		fflush(stdin);
-		getchar();
+		opc=getchar();
 		system(LIMPIAR);
 		uint8_t opcode = fetch();
 		decodeyexecute(opcode);
@@ -1095,17 +1130,21 @@ int run(){
 	}
 	if (stop==1){
 		printf("Simulation ended with HALT...\n---Enter to continue---\n");
-	}else{
+		opc=0;
+	}else if (stop==2){
 		printf("Simulation ended with an error...\n---Enter to continue---\n");
+		opc=0;
+	}else{
+		printf("Simulation stoped by user...\n---Enter to continue---\n");
+		opc=1;
 	}
 	fflush(stdin);
 	getchar(); 
 
 	
-	
 
 	//printf("Fin del programa");
-	return 0;
+	return opc;
 }
 void printCredits(){
 	system(LIMPIAR);
@@ -1150,7 +1189,32 @@ void resetVar(){
 	SP=PC=IX=IY=0;
 	S=Z=Hf=N=PV=NCf=stop=0;
 }
-
+void editMemory(uint8_t dir){
+	uint8_t opc=0;
+	uint8_t num8;
+	uint16_t num16;
+	cursor=dir;
+	for(;opc!='x';){
+		printTitle();
+		printf("a <-		d ->		w Put cursor		s Edit		x Exit\n");
+		printMemEdit(dir);
+		printf(">");
+		opc=getchar();
+		if(opc=='a'&&opc>0)cursor--;
+		if(opc=='d')cursor++;
+		if(opc=='w'){
+			printf("Ingresar dirección: ");
+			scanf("%ui",&num16);
+			cursor=num16;
+		}	
+		if(opc=='s'){
+			printf("Ingresar entero: ");
+			scanf("%ui",&num8);
+			mem[cursor]=num8;
+		}
+		system(LIMPIAR);
+	}
+}
 void main(){
 	
 	int opc=1;
@@ -1166,8 +1230,12 @@ void main(){
 				cargarPrograma();
 				break;
 			case 2:
-				run();
-				resetVar();
+				if (!run()){
+					resetVar();
+				}
+				break;
+			case 3:
+				editMemory(0);
 				break;
 			case 4:
 				printCredits();
