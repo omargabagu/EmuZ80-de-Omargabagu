@@ -1134,16 +1134,21 @@ void resetVar(){
 	SP=PC=IX=IY=0;
 	S=Z=Hf=N=PV=NCf=stop=0;
 }
+
 void main(){
 	
 	int opc=1;
 	do {
 		system("cls");
 		printTitle();
-		printf("Menu:\nIngresar el caracter para acceder a la opcion.\n");
+		printf("Menú:\nIngresar el caracter para acceder a la opción.\n");
 		printf("1) Cargar programa\n2) Correr programa\n3) Editar memoria\n4) Mostrar creditos\n5) Salir\n");
+		printf("\n> ");
 		scanf("%i",&opc);
 		switch (opc){
+			case 1:
+				cargarPrograma();
+				break;
 			case 2:
 				run();
 				resetVar();
@@ -1151,8 +1156,10 @@ void main(){
 			case 4:
 				printCredits();
 				break;
+			case 5:
+				printf("Saliendo del simulador\n");
+				break;
 			default:
-				cargarPrograma();
 				break;
 		}
 	}while ((opc!=5));
