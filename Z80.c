@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <locale.h>
 #include <stdint.h> //Para tipos como unit8_t
 #define LINUXX 0
 #ifdef	_linux_
@@ -885,7 +886,7 @@ unsigned int decodeyexecute(const uint8_t opcode){
 		case	0x10	://DJNZ, e
 			B=B-1;
 			e=fetch();
-			if(Z==0){
+			if(B==0){
 				PC=PC+e;
 				ticks=13;
 			}else
@@ -980,33 +981,6 @@ unsigned int decodeyexecute(const uint8_t opcode){
 	return ticks;
 }
 
-int ascii_to_hex(char c){
-	int num = (int) c;
-	if(num < 58 && num > 47){
-	    return num - 48; 
-	}
-	if(num < 103 && num > 96){
-	    return num - 87;
-	}
-	return num;
-}
-#define FILELEN 15
-/*
-void readFile(){
-        FILE *fp = fopen("sample","r");
-        unsigned char c1,c2;
-        int i=0;
-        unsigned char sum,final_hex[FILELEN/2];
-        for(i=0;i<FILELEN/2;i++)
-        {
-                c1 = ascii_to_hex(fgetc(fp));
-                c2 = ascii_to_hex(fgetc(fp));
-                sum = c1<<4 | c2;
-                final_hex[i] = sum;
-                printf("%02x ",sum);
-        }
-        printf("\n");
-}*/
 void printMem(uint8_t dir){
     uint8_t line = dir / 16;
 
@@ -1042,7 +1016,7 @@ void printScreen(int memPage,uint8_t opcode){
 	printf("I:%02X	R:%02X	IR:%02X				N:",I,R,getFrom2Reg(I,R));printf(N ? "true\n" : "false\n");
 	printf("SP:%02X		IX:%02X				P/V:",SP,IX,PV);	printf(PV ? "true\n" : "false\n");
 	printf("PC:%02X		IY:%02X		Data:%02X		NC:",PC,IY,opcode);		printf(NCf ? "true" : "false");
-	printf("		Instruction: %s\n",inst);
+	printf("		Last Instruction: %s\n",inst);
 	printMem(0);
 	
 }
@@ -1138,22 +1112,33 @@ void printCredits(){
 	printTitle();
 	printf("Creditos:\n");
 	printf("------------Colaboradores-\n");
-	printf("		Desarrollo general:\n");
 	printf("	Aguirre Córdova Omar Gabriel\n");
-	printf("		Instrucciónes:\n");
-	printf("	Aguirre Córdova Omar Gabriel\n");
-	printf("	Chávez Mejía Luis Héctor\n");
-	printf("	Castro Rodríguez Ulises\n");
-	printf("		Memoria y archivos:\n");
-	printf("	Castro Rodríguez Ulises\n");//
-	printf("		Menu\n");
-	printf("	Juárez Juárez María José\n");
-	printf("	Aguirre Córdova Omar Gabriel\n");
-	printf("		Manual\n");
 	printf("	Castañeda Aranda Alma Adriana\n");
-	printf("		Testing\n");
+	printf("	Castro Rodríguez Ulises\n");
 	printf("	Chávez Mejía Luis Héctor\n");
-	printf("------------Profesor\n");
+	printf("	Juárez Juárez María José\n");
+	printf("------------Roles-\n");
+	printf("	Desarrollo general:\n");
+	printf("		Omar Gabriel\n");
+	printf("		Luis Héctor\n");
+	printf("	Instrucciónes:\n");
+	printf("		Omar Gabriel\n");
+	printf("		Luis Héctor\n");
+	printf("		Ulises\n");
+	printf("	Memoria y archivos:\n");
+	printf("		Luis Héctor\n");//
+	printf("	Menu:\n");
+	printf("		María José\n");
+	printf("		Omar Gabriel\n");
+	printf("		Luis Héctor\n");
+	printf("	Manual:\n");
+	printf("		Omar Gabriel\n");
+	printf("		Alma Adriana\n");
+	printf("	Testing:\n");
+	printf("		Luis Héctor\n");
+	printf("		Omar Gabriel\n");
+	printf("------------Profesor\n");//Ing. Alberto Templos Carbajal
+	printf("	Ing. Templos Carbajal Alberto \n");
 	printf("	\n");
 	printf("\n");
 	fflush(stdin);
