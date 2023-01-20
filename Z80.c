@@ -490,12 +490,12 @@ unsigned int decodeyexecute(const uint8_t opcode){
 					D=mem[nn];					ticks=20;	strcpy(inst, "LD DE, (nn)");	break;
 				case	0x6B	: //	LD HL, (nn)
 					n=fetch();nn=getFrom2Reg(n,fetch());
-					H=mem[nn];
+					L=mem[nn];
 					n=fetch();nn=getFrom2Reg(n,fetch());
-					L=mem[nn];					ticks=20;	strcpy(inst, "LD HL, (nn)");	break;
+					H=mem[nn];					ticks=20;	strcpy(inst, "LD HL, (nn)");	break;
 				case 	0x7B	: //	LD SP, (nn)
 					n=fetch();
-					nn=getFrom2Reg(n,fetch()); 
+					nn=getFrom2Reg(fetch(),n); 
 					n=fetch();
 					SP=getFrom2Reg	(mem[getFrom2Reg(n,fetch())],	mem[nn]);	
 												ticks=20;	strcpy(inst, "LD SP, (nn)");	break;
@@ -529,16 +529,16 @@ unsigned int decodeyexecute(const uint8_t opcode){
 //					LD dd,nn
 		case	0x01	: //	LD BC, nn
 			n=fetch();
-			B=n; C=fetch();						ticks=9;	strcpy(inst, "LD BC, nn");	break;
+			C=n; B=fetch();						ticks=9;	strcpy(inst, "LD BC, nn");	break;
 		case	0x11	: //	LD DE, nn
 			n=fetch();
-			D=n; E=fetch();						ticks=9;	strcpy(inst, "LD DE, nn");	break;
+			E=n; D=fetch();						ticks=9;	strcpy(inst, "LD DE, nn");	break;
 		case	0x21	: //	LD HL, nn
 			n=fetch();
-			H=n;; L=fetch();					ticks=9;	strcpy(inst, "LD HL, nn");	break;
+			L=n;; H=fetch();					ticks=9;	strcpy(inst, "LD HL, nn");	break;
 		case	0x31	: //	LD SP, nn
 			n=fetch();
-			SP=getFrom2Reg(n,fetch());			ticks=9;	strcpy(inst, "LD SP, nn");	break;
+			SP=getFrom2Reg(fetch(),n);			ticks=9;	strcpy(inst, "LD SP, nn");	break;
 		
 		case	0x2A	: //	LD HL, (nn)
 			n=fetch();
