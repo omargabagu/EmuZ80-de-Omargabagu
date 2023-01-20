@@ -150,7 +150,7 @@ unsigned int decodeyexecute(const uint8_t opcode){
 	uint8_t n;
 	uint8_t subopcode;
 	uint16_t nn;
-	int e;
+	int8_t e;
 	int d;
 	switch (opcode){
 		case 	0x00	: //	NOP
