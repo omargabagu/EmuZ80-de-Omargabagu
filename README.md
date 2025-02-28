@@ -6,20 +6,20 @@ EmuZ80 de omargabagu is a simple **Zilog Z80 emulator** written in C. It simulat
 - **Emulate Z80 instructions** step by step, with full control over execution.
 - **Display registers and memory states** in real-time.
 - **Edit memory manually** for debugging and testing purposes.
-- **Support for HALT instruction** to stop execution.
+- **Support many of the main Zilog Z80 instructions**.
 - **Basic user interface** for navigation and program control.
 
 ## 🛠️ Installation
 To compile the emulator, use `gcc` or any compatible C compiler:
 
 ```sh
-gcc z80_emulator.c -o z80_emulator
+gcc Z80.c -o Z80
 ```
 
 Run the emulator:
 
 ```sh
-./z80_emulator
+./Z80
 ```
 
 ## 📌 Usage
